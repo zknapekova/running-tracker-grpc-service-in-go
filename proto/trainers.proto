@@ -1,0 +1,39 @@
+syntax = "proto3";
+
+package main;
+option go_package = "/proto/generated_files;running_trackerpb";
+
+import "response.proto";
+
+enum SurfaceType {
+	UNSPECIFIED = 0;
+	ROAD = 1;
+	TRAIL = 2;
+	ROAD_TO_TRAIL = 3;
+	TREADMILL = 4;
+}
+
+enum TrainerStatus {
+	NEW = 0;
+	ACTIVE = 1;
+	LOST = 2;
+	RETIRED = 3;
+}
+
+
+message Trainer {
+	string brand = 1;
+	string model = 2;
+	string purchase_date = 3;
+	int64 expected_lifespan = 4;
+	SurfaceType surface_type = 5;
+	TrainerStatus status = 6;
+}
+
+message AddTrainersRequest {
+	repeated Trainer trainers = 1;
+}
+
+service TrainersService {
+	rpc add_trainers(AddTrainersRequest) returns (Response);
+}
