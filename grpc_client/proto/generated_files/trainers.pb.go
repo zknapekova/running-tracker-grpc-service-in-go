@@ -260,7 +260,7 @@ var File_trainers_proto protoreflect.FileDescriptor
 
 const file_trainers_proto_rawDesc = "" +
 	"\n" +
-	"\x0etrainers.proto\x12\x04main\x1a\x0eresponse.proto\"\xea\x01\n" +
+	"\x0etrainers.proto\x12\x04main\"\xea\x01\n" +
 	"\aTrainer\x12\x14\n" +
 	"\x05brand\x18\x01 \x01(\tR\x05brand\x12\x14\n" +
 	"\x05model\x18\x02 \x01(\tR\x05model\x12#\n" +
@@ -281,9 +281,7 @@ const file_trainers_proto_rawDesc = "" +
 	"\n" +
 	"\x06ACTIVE\x10\x01\x12\b\n" +
 	"\x04LOST\x10\x02\x12\v\n" +
-	"\aRETIRED\x10\x032K\n" +
-	"\x0fTrainersService\x128\n" +
-	"\fadd_trainers\x12\x18.main.AddTrainersRequest\x1a\x0e.main.ResponseB*Z(/proto/generated_files;running_trackerpbb\x06proto3"
+	"\aRETIRED\x10\x03B*Z(/proto/generated_files;running_trackerpbb\x06proto3"
 
 var (
 	file_trainers_proto_rawDescOnce sync.Once
@@ -304,16 +302,13 @@ var file_trainers_proto_goTypes = []any{
 	(TrainerStatus)(0),         // 1: main.TrainerStatus
 	(*Trainer)(nil),            // 2: main.Trainer
 	(*AddTrainersRequest)(nil), // 3: main.AddTrainersRequest
-	(*Response)(nil),           // 4: main.Response
 }
 var file_trainers_proto_depIdxs = []int32{
 	0, // 0: main.Trainer.surface_type:type_name -> main.SurfaceType
 	1, // 1: main.Trainer.status:type_name -> main.TrainerStatus
 	2, // 2: main.AddTrainersRequest.trainers:type_name -> main.Trainer
-	3, // 3: main.TrainersService.add_trainers:input_type -> main.AddTrainersRequest
-	4, // 4: main.TrainersService.add_trainers:output_type -> main.Response
-	4, // [4:5] is the sub-list for method output_type
-	3, // [3:4] is the sub-list for method input_type
+	3, // [3:3] is the sub-list for method output_type
+	3, // [3:3] is the sub-list for method input_type
 	3, // [3:3] is the sub-list for extension type_name
 	3, // [3:3] is the sub-list for extension extendee
 	0, // [0:3] is the sub-list for field type_name
@@ -324,7 +319,6 @@ func file_trainers_proto_init() {
 	if File_trainers_proto != nil {
 		return
 	}
-	file_response_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
@@ -333,7 +327,7 @@ func file_trainers_proto_init() {
 			NumEnums:      2,
 			NumMessages:   2,
 			NumExtensions: 0,
-			NumServices:   1,
+			NumServices:   0,
 		},
 		GoTypes:           file_trainers_proto_goTypes,
 		DependencyIndexes: file_trainers_proto_depIdxs,

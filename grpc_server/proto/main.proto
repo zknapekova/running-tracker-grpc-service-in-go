@@ -1,0 +1,11 @@
+syntax = "proto3";
+
+package main;
+option go_package = "/proto/generated_files;running_trackerpb";
+
+import "response.proto";
+import "trainers.proto";
+
+service TrainersService {
+	rpc add_trainers(AddTrainersRequest) returns (Response);
+}

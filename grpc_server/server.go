@@ -6,6 +6,8 @@ import (
 	"google.golang.org/grpc"
 	"github.com/joho/godotenv"
 	pb "grpcserver/proto/generated_files"
+	//"grpcserver/internals/handlers"
+	mongodb "grpcserver/mongo_db"
 	"log"
 	"net"
 	"os"
@@ -25,6 +27,8 @@ func (s *server) AddTrainers(ctx context.Context, in *pb.AddTrainersRequest) (*p
 
 func main() {
 
+	mongodb.CreateMongoClient()
+
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalf("Error loading .env file: %v", err)
@@ -38,7 +42,11 @@ func main() {
 	}
 
 	// start TCP listener as TCP is inherently streamed-oriented, establishes connection before data transfer
-	port := ":50051"
+	port := os.Getenv("SERVER_PORT")
+	if port == "" {
+		log.Fatal("SERVER_PORT not set")
+	}
+
 	listener, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatal("Failed to listen: ", err)
