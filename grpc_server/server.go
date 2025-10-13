@@ -1,27 +1,41 @@
 package main
 
-import  (
-		"context"
-		"net"
-		"log"
-		"google.golang.org/grpc"
-		pb "grpcserver/proto/generated_files"
+import (
+	"context"
+	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc"
+	"github.com/joho/godotenv"
+	pb "grpcserver/proto/generated_files"
+	"log"
+	"net"
+	"os"
 )
 
 type server struct {
 	pb.UnimplementedTrainersServiceServer
 }
 
-func (s *server)AddTrainers(ctx context.Context, in *pb.AddTrainersRequest) (*pb.Response, error) {
+func (s *server) AddTrainers(ctx context.Context, in *pb.AddTrainersRequest) (*pb.Response, error) {
 	//TODO: handle logic
 	return &pb.Response{
 		Message: "all good",
-		Code: 0,
+		Code:    0,
 	}, nil
 }
 
+func main() {
 
-func main () {
+	err := godotenv.Load()
+	if err != nil {
+		log.Fatalf("Error loading .env file: %v", err)
+	}
+
+	certPath := os.Getenv("CERT_PATH")
+	keyPath := os.Getenv("KEY_PATH")
+
+	if certPath == "" || keyPath == "" {
+		log.Fatal("CERT_PATH or KEY_PATH not set")
+	}
 
 	// start TCP listener as TCP is inherently streamed-oriented, establishes connection before data transfer
 	port := ":50051"
@@ -29,8 +43,14 @@ func main () {
 	if err != nil {
 		log.Fatal("Failed to listen: ", err)
 	}
+
 	// initialize gRPC server instance
-	grpcServer := grpc.NewServer()
+	creds, err := credentials.NewServerTLSFromFile(certPath, keyPath)
+	if err != nil {
+		log.Fatal("Failed to load credentials: ", err)
+	}
+
+	grpcServer := grpc.NewServer(grpc.Creds(creds))
 	pb.RegisterTrainersServiceServer(grpcServer, &server{})
 
 	log.Println("Server is running on port", port)
