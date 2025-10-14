@@ -1,19 +1,18 @@
 package main
 
 import (
-	"context"
-	"google.golang.org/grpc/credentials"
-	"google.golang.org/grpc"
 	"github.com/joho/godotenv"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
+	"grpcserver/internals/handlers"
 	pb "grpcserver/proto/generated_files"
-	//"grpcserver/internals/handlers"
-	mongodb "grpcserver/mongo_db"
+	//mongodb "grpcserver/mongo_db"
 	"log"
 	"net"
 	"os"
 )
 
-type server struct {
+/*type server struct {
 	pb.UnimplementedTrainersServiceServer
 }
 
@@ -23,11 +22,11 @@ func (s *server) AddTrainers(ctx context.Context, in *pb.AddTrainersRequest) (*p
 		Message: "all good",
 		Code:    0,
 	}, nil
-}
+}*/
 
 func main() {
 
-	mongodb.CreateMongoClient()
+	//mongodb.CreateMongoClient()
 
 	err := godotenv.Load()
 	if err != nil {
@@ -59,7 +58,7 @@ func main() {
 	}
 
 	grpcServer := grpc.NewServer(grpc.Creds(creds))
-	pb.RegisterTrainersServiceServer(grpcServer, &server{})
+	pb.RegisterTrainersServiceServer(grpcServer, &handlers.Server{})
 
 	log.Println("Server is running on port", port)
 

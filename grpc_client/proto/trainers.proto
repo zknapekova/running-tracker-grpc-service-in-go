@@ -18,14 +18,14 @@ enum TrainerStatus {
 	RETIRED = 3;
 }
 
-
 message Trainer {
-	string brand = 1;
-	string model = 2;
-	string purchase_date = 3;
-	int64 expected_lifespan = 4;
-	SurfaceType surface_type = 5;
-	TrainerStatus status = 6;
+	string id = 1;
+	string brand = 2;
+	string model = 3;
+	string purchase_date = 4;
+	int64 expected_lifespan = 5;
+	SurfaceType surface_type = 6;
+	TrainerStatus status = 7;
 }
 
 message AddTrainersRequest {

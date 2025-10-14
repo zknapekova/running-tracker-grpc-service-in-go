@@ -130,12 +130,13 @@ func (TrainerStatus) EnumDescriptor() ([]byte, []int) {
 
 type Trainer struct {
 	state            protoimpl.MessageState `protogen:"open.v1"`
-	Brand            string                 `protobuf:"bytes,1,opt,name=brand,proto3" json:"brand,omitempty"`
-	Model            string                 `protobuf:"bytes,2,opt,name=model,proto3" json:"model,omitempty"`
-	PurchaseDate     string                 `protobuf:"bytes,3,opt,name=purchase_date,json=purchaseDate,proto3" json:"purchase_date,omitempty"`
-	ExpectedLifespan int64                  `protobuf:"varint,4,opt,name=expected_lifespan,json=expectedLifespan,proto3" json:"expected_lifespan,omitempty"`
-	SurfaceType      SurfaceType            `protobuf:"varint,5,opt,name=surface_type,json=surfaceType,proto3,enum=main.SurfaceType" json:"surface_type,omitempty"`
-	Status           TrainerStatus          `protobuf:"varint,6,opt,name=status,proto3,enum=main.TrainerStatus" json:"status,omitempty"`
+	Id               string                 `protobuf:"bytes,1,opt,name=id,proto3" json:"id,omitempty"`
+	Brand            string                 `protobuf:"bytes,2,opt,name=brand,proto3" json:"brand,omitempty"`
+	Model            string                 `protobuf:"bytes,3,opt,name=model,proto3" json:"model,omitempty"`
+	PurchaseDate     string                 `protobuf:"bytes,4,opt,name=purchase_date,json=purchaseDate,proto3" json:"purchase_date,omitempty"`
+	ExpectedLifespan int64                  `protobuf:"varint,5,opt,name=expected_lifespan,json=expectedLifespan,proto3" json:"expected_lifespan,omitempty"`
+	SurfaceType      SurfaceType            `protobuf:"varint,6,opt,name=surface_type,json=surfaceType,proto3,enum=main.SurfaceType" json:"surface_type,omitempty"`
+	Status           TrainerStatus          `protobuf:"varint,7,opt,name=status,proto3,enum=main.TrainerStatus" json:"status,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
@@ -168,6 +169,13 @@ func (x *Trainer) ProtoReflect() protoreflect.Message {
 // Deprecated: Use Trainer.ProtoReflect.Descriptor instead.
 func (*Trainer) Descriptor() ([]byte, []int) {
 	return file_trainers_proto_rawDescGZIP(), []int{0}
+}
+
+func (x *Trainer) GetId() string {
+	if x != nil {
+		return x.Id
+	}
+	return ""
 }
 
 func (x *Trainer) GetBrand() string {
@@ -260,14 +268,15 @@ var File_trainers_proto protoreflect.FileDescriptor
 
 const file_trainers_proto_rawDesc = "" +
 	"\n" +
-	"\x0etrainers.proto\x12\x04main\"\xea\x01\n" +
-	"\aTrainer\x12\x14\n" +
-	"\x05brand\x18\x01 \x01(\tR\x05brand\x12\x14\n" +
-	"\x05model\x18\x02 \x01(\tR\x05model\x12#\n" +
-	"\rpurchase_date\x18\x03 \x01(\tR\fpurchaseDate\x12+\n" +
-	"\x11expected_lifespan\x18\x04 \x01(\x03R\x10expectedLifespan\x124\n" +
-	"\fsurface_type\x18\x05 \x01(\x0e2\x11.main.SurfaceTypeR\vsurfaceType\x12+\n" +
-	"\x06status\x18\x06 \x01(\x0e2\x13.main.TrainerStatusR\x06status\"?\n" +
+	"\x0etrainers.proto\x12\x04main\"\xfa\x01\n" +
+	"\aTrainer\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\tR\x02id\x12\x14\n" +
+	"\x05brand\x18\x02 \x01(\tR\x05brand\x12\x14\n" +
+	"\x05model\x18\x03 \x01(\tR\x05model\x12#\n" +
+	"\rpurchase_date\x18\x04 \x01(\tR\fpurchaseDate\x12+\n" +
+	"\x11expected_lifespan\x18\x05 \x01(\x03R\x10expectedLifespan\x124\n" +
+	"\fsurface_type\x18\x06 \x01(\x0e2\x11.main.SurfaceTypeR\vsurfaceType\x12+\n" +
+	"\x06status\x18\a \x01(\x0e2\x13.main.TrainerStatusR\x06status\"?\n" +
 	"\x12AddTrainersRequest\x12)\n" +
 	"\btrainers\x18\x01 \x03(\v2\r.main.TrainerR\btrainers*U\n" +
 	"\vSurfaceType\x12\x0f\n" +

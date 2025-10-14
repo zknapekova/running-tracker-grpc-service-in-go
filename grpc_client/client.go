@@ -2,10 +2,10 @@ package main
 
 import (
 	"context"
+	"github.com/joho/godotenv"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	running_trackerpb "grpcclient/proto/generated_files"
-	"github.com/joho/godotenv"
 	"log"
 	"os"
 	"time"
@@ -37,7 +37,7 @@ func main() {
 
 	//create new client
 	client := running_trackerpb.NewTrainersServiceClient(conn)
-	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 	defer cancel()
 
 	//create request
