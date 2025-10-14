@@ -6,27 +6,12 @@ import (
 	"google.golang.org/grpc/credentials"
 	"grpcserver/internals/handlers"
 	pb "grpcserver/proto/generated_files"
-	//mongodb "grpcserver/mongo_db"
 	"log"
 	"net"
 	"os"
 )
 
-/*type server struct {
-	pb.UnimplementedTrainersServiceServer
-}
-
-func (s *server) AddTrainers(ctx context.Context, in *pb.AddTrainersRequest) (*pb.Response, error) {
-	//TODO: handle logic
-	return &pb.Response{
-		Message: "all good",
-		Code:    0,
-	}, nil
-}*/
-
 func main() {
-
-	//mongodb.CreateMongoClient()
 
 	err := godotenv.Load()
 	if err != nil {

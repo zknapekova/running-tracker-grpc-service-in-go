@@ -26,7 +26,7 @@ func CreateMongoClient() (*mongo.Client, error) {
 	}
 
 	ctx := context.Background()
-	mongoURI := fmt.Sprintf("mongodb://%s:%s@localhost:27017/?authSource=admin", username, password)
+	mongoURI := fmt.Sprintf("mongodb://%s:%s@mongodb:27017/?authSource=admin", username, password)
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoURI))
 	if err != nil {
 		return nil, utils.ErrorHandler(err, "Unable to connect to database")

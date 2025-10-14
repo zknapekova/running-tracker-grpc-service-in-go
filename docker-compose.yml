@@ -1,5 +1,5 @@
 services:
-  mongo:
+  mongodb:
     image: mongo:7
     container_name: mongodb
     restart: always
@@ -10,6 +10,17 @@ services:
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: pass
+
+  grpcserver:
+    build:
+      context: ./grpc_server
+      dockerfile: Dockerfile
+    depends_on:
+      - mongodb
+    ports:
+      - "50051:50051"
+    command: [ "./grpcserver" ]
+
 
 volumes:
   mongo_data:
