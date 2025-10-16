@@ -21,28 +21,28 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type Response struct {
+type AddTrainersResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
-	Code          int32                  `protobuf:"varint,2,opt,name=code,proto3" json:"code,omitempty"`
+	Ids           []string               `protobuf:"bytes,2,rep,name=ids,proto3" json:"ids,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *Response) Reset() {
-	*x = Response{}
+func (x *AddTrainersResponse) Reset() {
+	*x = AddTrainersResponse{}
 	mi := &file_response_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *Response) String() string {
+func (x *AddTrainersResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*Response) ProtoMessage() {}
+func (*AddTrainersResponse) ProtoMessage() {}
 
-func (x *Response) ProtoReflect() protoreflect.Message {
+func (x *AddTrainersResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_response_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -54,33 +54,33 @@ func (x *Response) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use Response.ProtoReflect.Descriptor instead.
-func (*Response) Descriptor() ([]byte, []int) {
+// Deprecated: Use AddTrainersResponse.ProtoReflect.Descriptor instead.
+func (*AddTrainersResponse) Descriptor() ([]byte, []int) {
 	return file_response_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *Response) GetMessage() string {
+func (x *AddTrainersResponse) GetMessage() string {
 	if x != nil {
 		return x.Message
 	}
 	return ""
 }
 
-func (x *Response) GetCode() int32 {
+func (x *AddTrainersResponse) GetIds() []string {
 	if x != nil {
-		return x.Code
+		return x.Ids
 	}
-	return 0
+	return nil
 }
 
 var File_response_proto protoreflect.FileDescriptor
 
 const file_response_proto_rawDesc = "" +
 	"\n" +
-	"\x0eresponse.proto\x12\x04main\"8\n" +
-	"\bResponse\x12\x18\n" +
-	"\amessage\x18\x01 \x01(\tR\amessage\x12\x12\n" +
-	"\x04code\x18\x02 \x01(\x05R\x04codeB*Z(/proto/generated_files;running_trackerpbb\x06proto3"
+	"\x0eresponse.proto\x12\x04main\"A\n" +
+	"\x13AddTrainersResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\x12\x10\n" +
+	"\x03ids\x18\x02 \x03(\tR\x03idsB*Z(/proto/generated_files;running_trackerpbb\x06proto3"
 
 var (
 	file_response_proto_rawDescOnce sync.Once
@@ -96,7 +96,7 @@ func file_response_proto_rawDescGZIP() []byte {
 
 var file_response_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_response_proto_goTypes = []any{
-	(*Response)(nil), // 0: main.Response
+	(*AddTrainersResponse)(nil), // 0: main.AddTrainersResponse
 }
 var file_response_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type

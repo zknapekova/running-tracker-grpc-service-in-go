@@ -25,17 +25,17 @@ var File_main_proto protoreflect.FileDescriptor
 const file_main_proto_rawDesc = "" +
 	"\n" +
 	"\n" +
-	"main.proto\x12\x04main\x1a\x0eresponse.proto\x1a\x0etrainers.proto2K\n" +
-	"\x0fTrainersService\x128\n" +
-	"\fadd_trainers\x12\x18.main.AddTrainersRequest\x1a\x0e.main.ResponseB*Z(/proto/generated_files;running_trackerpbb\x06proto3"
+	"main.proto\x12\x04main\x1a\x0eresponse.proto\x1a\x0etrainers.proto2V\n" +
+	"\x0fTrainersService\x12C\n" +
+	"\fadd_trainers\x12\x18.main.AddTrainersRequest\x1a\x19.main.AddTrainersResponseB*Z(/proto/generated_files;running_trackerpbb\x06proto3"
 
 var file_main_proto_goTypes = []any{
-	(*AddTrainersRequest)(nil), // 0: main.AddTrainersRequest
-	(*Response)(nil),           // 1: main.Response
+	(*AddTrainersRequest)(nil),  // 0: main.AddTrainersRequest
+	(*AddTrainersResponse)(nil), // 1: main.AddTrainersResponse
 }
 var file_main_proto_depIdxs = []int32{
 	0, // 0: main.TrainersService.add_trainers:input_type -> main.AddTrainersRequest
-	1, // 1: main.TrainersService.add_trainers:output_type -> main.Response
+	1, // 1: main.TrainersService.add_trainers:output_type -> main.AddTrainersResponse
 	1, // [1:2] is the sub-list for method output_type
 	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name

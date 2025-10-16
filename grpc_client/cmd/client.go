@@ -51,6 +51,14 @@ func main() {
 				SurfaceType:      running_trackerpb.SurfaceType_ROAD_TO_TRAIL,
 				Status:           running_trackerpb.TrainerStatus_NEW,
 			},
+			{
+				Brand:            "Nike",
+				Model:            "Pegasus Trail 4",
+				PurchaseDate:     "2025-01-01",
+				ExpectedLifespan: 700,
+				SurfaceType:      running_trackerpb.SurfaceType_TRAIL,
+				Status:           running_trackerpb.TrainerStatus_NEW,
+			},
 		},
 	}
 	//get response
@@ -58,9 +66,11 @@ func main() {
 	if err != nil {
 		log.Fatal("Could not add", err)
 	}
-	log.Println("Response status:", res.Code)
-	log.Println("Response message:", res.Message)
 	state := conn.GetState()
 	log.Println("Connection State: ", state)
+
+	log.Println("IDs:", res.Ids)
+	log.Println("Response message:", res.Message)
+
 
 }

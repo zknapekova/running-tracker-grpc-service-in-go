@@ -7,5 +7,5 @@ import "response.proto";
 import "trainers.proto";
 
 service TrainersService {
-	rpc add_trainers(AddTrainersRequest) returns (Response);
+	rpc add_trainers(AddTrainersRequest) returns (AddTrainersResponse);
 }

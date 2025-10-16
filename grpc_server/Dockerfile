@@ -8,7 +8,7 @@ RUN go mod download
 
 COPY . .
 
-RUN go build -o grpcserver server.go
+RUN go build -o grpcserver ./cmd/server.go
 
 # Final stage
 FROM alpine:latest

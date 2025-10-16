@@ -26,7 +26,7 @@ const (
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TrainersServiceClient interface {
-	AddTrainers(ctx context.Context, in *AddTrainersRequest, opts ...grpc.CallOption) (*Response, error)
+	AddTrainers(ctx context.Context, in *AddTrainersRequest, opts ...grpc.CallOption) (*AddTrainersResponse, error)
 }
 
 type trainersServiceClient struct {
@@ -37,9 +37,9 @@ func NewTrainersServiceClient(cc grpc.ClientConnInterface) TrainersServiceClient
 	return &trainersServiceClient{cc}
 }
 
-func (c *trainersServiceClient) AddTrainers(ctx context.Context, in *AddTrainersRequest, opts ...grpc.CallOption) (*Response, error) {
+func (c *trainersServiceClient) AddTrainers(ctx context.Context, in *AddTrainersRequest, opts ...grpc.CallOption) (*AddTrainersResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Response)
+	out := new(AddTrainersResponse)
 	err := c.cc.Invoke(ctx, TrainersService_AddTrainers_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -51,7 +51,7 @@ func (c *trainersServiceClient) AddTrainers(ctx context.Context, in *AddTrainers
 // All implementations must embed UnimplementedTrainersServiceServer
 // for forward compatibility.
 type TrainersServiceServer interface {
-	AddTrainers(context.Context, *AddTrainersRequest) (*Response, error)
+	AddTrainers(context.Context, *AddTrainersRequest) (*AddTrainersResponse, error)
 	mustEmbedUnimplementedTrainersServiceServer()
 }
 
@@ -62,7 +62,7 @@ type TrainersServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedTrainersServiceServer struct{}
 
-func (UnimplementedTrainersServiceServer) AddTrainers(context.Context, *AddTrainersRequest) (*Response, error) {
+func (UnimplementedTrainersServiceServer) AddTrainers(context.Context, *AddTrainersRequest) (*AddTrainersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddTrainers not implemented")
 }
 func (UnimplementedTrainersServiceServer) mustEmbedUnimplementedTrainersServiceServer() {}
