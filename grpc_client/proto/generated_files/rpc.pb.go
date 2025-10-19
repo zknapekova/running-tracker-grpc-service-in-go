@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.10
 // 	protoc        v5.28.0
-// source: main.proto
+// source: rpc.proto
 
 package running_trackerpb
 
@@ -20,20 +20,19 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-var File_main_proto protoreflect.FileDescriptor
+var File_rpc_proto protoreflect.FileDescriptor
 
-const file_main_proto_rawDesc = "" +
+const file_rpc_proto_rawDesc = "" +
 	"\n" +
-	"\n" +
-	"main.proto\x12\x04main\x1a\x0eresponse.proto\x1a\x0etrainers.proto2V\n" +
+	"\trpc.proto\x12\x04main\x1a\x0fresponses.proto\x1a\x0erequests.proto2V\n" +
 	"\x0fTrainersService\x12C\n" +
 	"\fadd_trainers\x12\x18.main.AddTrainersRequest\x1a\x19.main.AddTrainersResponseB*Z(/proto/generated_files;running_trackerpbb\x06proto3"
 
-var file_main_proto_goTypes = []any{
+var file_rpc_proto_goTypes = []any{
 	(*AddTrainersRequest)(nil),  // 0: main.AddTrainersRequest
 	(*AddTrainersResponse)(nil), // 1: main.AddTrainersResponse
 }
-var file_main_proto_depIdxs = []int32{
+var file_rpc_proto_depIdxs = []int32{
 	0, // 0: main.TrainersService.add_trainers:input_type -> main.AddTrainersRequest
 	1, // 1: main.TrainersService.add_trainers:output_type -> main.AddTrainersResponse
 	1, // [1:2] is the sub-list for method output_type
@@ -43,27 +42,27 @@ var file_main_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_main_proto_init() }
-func file_main_proto_init() {
-	if File_main_proto != nil {
+func init() { file_rpc_proto_init() }
+func file_rpc_proto_init() {
+	if File_rpc_proto != nil {
 		return
 	}
-	file_response_proto_init()
-	file_trainers_proto_init()
+	file_responses_proto_init()
+	file_requests_proto_init()
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_main_proto_rawDesc), len(file_main_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_rpc_proto_rawDesc), len(file_rpc_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   0,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
-		GoTypes:           file_main_proto_goTypes,
-		DependencyIndexes: file_main_proto_depIdxs,
+		GoTypes:           file_rpc_proto_goTypes,
+		DependencyIndexes: file_rpc_proto_depIdxs,
 	}.Build()
-	File_main_proto = out.File
-	file_main_proto_goTypes = nil
-	file_main_proto_depIdxs = nil
+	File_rpc_proto = out.File
+	file_rpc_proto_goTypes = nil
+	file_rpc_proto_depIdxs = nil
 }

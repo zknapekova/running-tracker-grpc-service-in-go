@@ -3,7 +3,8 @@ syntax = "proto3";
 package main;
 option go_package = "/proto/generated_files;running_trackerpb";
 
-message AddTrainersResponse {
- 	string message = 1;
- 	repeated string ids = 2;
+import "trainers.proto";
+
+message AddTrainersRequest {
+	repeated Trainer trainers = 1;
 }

@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.5.1
 // - protoc             v5.28.0
-// source: main.proto
+// source: rpc.proto
 
 package running_trackerpb
 
@@ -117,5 +117,5 @@ var TrainersService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "main.proto",
+	Metadata: "rpc.proto",
 }

@@ -18,6 +18,7 @@ enum TrainerStatus {
 	RETIRED = 3;
 }
 
+
 message Trainer {
 	string id = 1;
 	string brand = 2;
@@ -26,9 +27,5 @@ message Trainer {
 	int64 expected_lifespan = 5;
 	SurfaceType surface_type = 6;
 	TrainerStatus status = 7;
-}
-
-message AddTrainersRequest {
-	repeated Trainer trainers = 1;
 }
 

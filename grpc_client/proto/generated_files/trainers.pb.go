@@ -220,50 +220,6 @@ func (x *Trainer) GetStatus() TrainerStatus {
 	return TrainerStatus_NEW
 }
 
-type AddTrainersRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Trainers      []*Trainer             `protobuf:"bytes,1,rep,name=trainers,proto3" json:"trainers,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *AddTrainersRequest) Reset() {
-	*x = AddTrainersRequest{}
-	mi := &file_trainers_proto_msgTypes[1]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *AddTrainersRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*AddTrainersRequest) ProtoMessage() {}
-
-func (x *AddTrainersRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_trainers_proto_msgTypes[1]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use AddTrainersRequest.ProtoReflect.Descriptor instead.
-func (*AddTrainersRequest) Descriptor() ([]byte, []int) {
-	return file_trainers_proto_rawDescGZIP(), []int{1}
-}
-
-func (x *AddTrainersRequest) GetTrainers() []*Trainer {
-	if x != nil {
-		return x.Trainers
-	}
-	return nil
-}
-
 var File_trainers_proto protoreflect.FileDescriptor
 
 const file_trainers_proto_rawDesc = "" +
@@ -276,9 +232,7 @@ const file_trainers_proto_rawDesc = "" +
 	"\rpurchase_date\x18\x04 \x01(\tR\fpurchaseDate\x12+\n" +
 	"\x11expected_lifespan\x18\x05 \x01(\x03R\x10expectedLifespan\x124\n" +
 	"\fsurface_type\x18\x06 \x01(\x0e2\x11.main.SurfaceTypeR\vsurfaceType\x12+\n" +
-	"\x06status\x18\a \x01(\x0e2\x13.main.TrainerStatusR\x06status\"?\n" +
-	"\x12AddTrainersRequest\x12)\n" +
-	"\btrainers\x18\x01 \x03(\v2\r.main.TrainerR\btrainers*U\n" +
+	"\x06status\x18\a \x01(\x0e2\x13.main.TrainerStatusR\x06status*U\n" +
 	"\vSurfaceType\x12\x0f\n" +
 	"\vUNSPECIFIED\x10\x00\x12\b\n" +
 	"\x04ROAD\x10\x01\x12\t\n" +
@@ -305,22 +259,20 @@ func file_trainers_proto_rawDescGZIP() []byte {
 }
 
 var file_trainers_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_trainers_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_trainers_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_trainers_proto_goTypes = []any{
-	(SurfaceType)(0),           // 0: main.SurfaceType
-	(TrainerStatus)(0),         // 1: main.TrainerStatus
-	(*Trainer)(nil),            // 2: main.Trainer
-	(*AddTrainersRequest)(nil), // 3: main.AddTrainersRequest
+	(SurfaceType)(0),   // 0: main.SurfaceType
+	(TrainerStatus)(0), // 1: main.TrainerStatus
+	(*Trainer)(nil),    // 2: main.Trainer
 }
 var file_trainers_proto_depIdxs = []int32{
 	0, // 0: main.Trainer.surface_type:type_name -> main.SurfaceType
 	1, // 1: main.Trainer.status:type_name -> main.TrainerStatus
-	2, // 2: main.AddTrainersRequest.trainers:type_name -> main.Trainer
-	3, // [3:3] is the sub-list for method output_type
-	3, // [3:3] is the sub-list for method input_type
-	3, // [3:3] is the sub-list for extension type_name
-	3, // [3:3] is the sub-list for extension extendee
-	0, // [0:3] is the sub-list for field type_name
+	2, // [2:2] is the sub-list for method output_type
+	2, // [2:2] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_trainers_proto_init() }
@@ -334,7 +286,7 @@ func file_trainers_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_trainers_proto_rawDesc), len(file_trainers_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   2,
+			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
