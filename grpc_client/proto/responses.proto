@@ -3,6 +3,8 @@ syntax = "proto3";
 package main;
 option go_package = "/proto/generated_files;running_trackerpb";
 
+import "trainers.proto";
+
 message AddTrainersResponse {
   string message = 1;
   repeated string ids = 2;
@@ -10,5 +12,5 @@ message AddTrainersResponse {
 
 message GetTrainersResponse {
   string message = 1;
-  repeated string ids = 2;
+  repeated Trainer trainers = 2;
 }

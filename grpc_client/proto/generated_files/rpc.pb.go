@@ -24,19 +24,24 @@ var File_rpc_proto protoreflect.FileDescriptor
 
 const file_rpc_proto_rawDesc = "" +
 	"\n" +
-	"\trpc.proto\x12\x04main\x1a\x0fresponses.proto\x1a\x0erequests.proto2V\n" +
+	"\trpc.proto\x12\x04main\x1a\x0fresponses.proto\x1a\x0erequests.proto2\x9b\x01\n" +
 	"\x0fTrainersService\x12C\n" +
-	"\fadd_trainers\x12\x18.main.AddTrainersRequest\x1a\x19.main.AddTrainersResponseB*Z(/proto/generated_files;running_trackerpbb\x06proto3"
+	"\fadd_trainers\x12\x18.main.AddTrainersRequest\x1a\x19.main.AddTrainersResponse\x12C\n" +
+	"\fget_trainers\x12\x18.main.GetTrainersRequest\x1a\x19.main.GetTrainersResponseB*Z(/proto/generated_files;running_trackerpbb\x06proto3"
 
 var file_rpc_proto_goTypes = []any{
 	(*AddTrainersRequest)(nil),  // 0: main.AddTrainersRequest
-	(*AddTrainersResponse)(nil), // 1: main.AddTrainersResponse
+	(*GetTrainersRequest)(nil),  // 1: main.GetTrainersRequest
+	(*AddTrainersResponse)(nil), // 2: main.AddTrainersResponse
+	(*GetTrainersResponse)(nil), // 3: main.GetTrainersResponse
 }
 var file_rpc_proto_depIdxs = []int32{
 	0, // 0: main.TrainersService.add_trainers:input_type -> main.AddTrainersRequest
-	1, // 1: main.TrainersService.add_trainers:output_type -> main.AddTrainersResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
+	1, // 1: main.TrainersService.get_trainers:input_type -> main.GetTrainersRequest
+	2, // 2: main.TrainersService.add_trainers:output_type -> main.AddTrainersResponse
+	3, // 3: main.TrainersService.get_trainers:output_type -> main.GetTrainersResponse
+	2, // [2:4] is the sub-list for method output_type
+	0, // [0:2] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
 	0, // [0:0] is the sub-list for extension extendee
 	0, // [0:0] is the sub-list for field type_name

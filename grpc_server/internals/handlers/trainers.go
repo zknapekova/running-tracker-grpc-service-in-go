@@ -1,12 +1,16 @@
 package handlers
 
 import (
-		"context"
-		"fmt"
-		mongodb "grpcserver/mongo_db"
-		 pb "grpcserver/proto/generated_files"
-		"google.golang.org/grpc/status"
-		"google.golang.org/grpc/codes"
+	"context"
+	"fmt"
+	"go.mongodb.org/mongo-driver/bson"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
+	"grpcserver/internals/models"
+	mongodb "grpcserver/mongo_db"
+	pb "grpcserver/proto/generated_files"
+	"reflect"
+	"strings"
 )
 
 func (s *Server) AddTrainers(ctx context.Context, req *pb.AddTrainersRequest) (*pb.AddTrainersResponse, error) {
@@ -33,7 +37,7 @@ func (s *Server) AddTrainers(ctx context.Context, req *pb.AddTrainersRequest) (*
 
 	return &pb.AddTrainersResponse{
 		Message: "Trainers were added to database",
-		Ids: ids,
+		Ids:     ids,
 	}, nil
 }
 
@@ -50,3 +54,43 @@ func validateTrainersRequest(request_trainers []*pb.Trainer) error {
 	return nil
 }
 
+func (s *Server) GetTrainers(ctx context.Context, req *pb.GetTrainersRequest) (*pb.GetTrainersResponse, error) {
+	buildFilterForTrainers(req)
+
+	//Sort
+	return nil, nil
+
+}
+
+func buildFilterForTrainers(req *pb.GetTrainersRequest) {
+	filter := bson.M{}
+
+	var modelTrainers models.Trainers
+	modelVal := reflect.ValueOf(&modelTrainers).Elem()
+	modelType := modelVal.Type()
+
+	reqVal := reflect.ValueOf(req.Trainers).Elem()
+	reqType := reqVal.Type()
+
+	for i := 0; i < reqVal.NumField(); i++ {
+		fieldVal := reqVal.Field(i)
+		fieldName := reqType.Field(i).Name
+
+		if fieldVal.IsValid() && !fieldVal.IsZero() {
+			modelField := modelVal.FieldByName(fieldName)
+			if modelField.IsValid() && modelField.CanSet() {
+				modelField.Set(fieldVal)
+			}
+		}
+	}
+	for i := 0; i < modelVal.NumField(); i++ {
+		fieldVal := modelVal.Field(i)
+
+		if fieldVal.IsValid() && !fieldVal.IsZero() {
+			bsonTag := modelType.Field(i).Tag.Get("bson")
+			bsonTag = strings.TrimSuffix(bsonTag, ",omitempty")
+			filter[bsonTag] = fieldVal.Interface().(string)
+		}
+	}
+	fmt.Println(filter)
+}

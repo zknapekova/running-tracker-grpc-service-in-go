@@ -28,12 +28,15 @@ func main() {
 		log.Fatal("Failed to load certificate:", err)
 	}
 
-	// establish insecure connection for now
+	// use TLS for secure connection
 	conn, err := grpc.NewClient("localhost:50051", grpc.WithTransportCredentials(creds))
 	if err != nil {
 		log.Fatal("Did not connect:", err)
 	}
 	defer conn.Close()
+
+	state := conn.GetState()
+	log.Println("Connection State: ", state)
 
 	//create new client
 	client := running_trackerpb.NewTrainersServiceClient(conn)
@@ -41,7 +44,7 @@ func main() {
 	defer cancel()
 
 	//create request
-	request := running_trackerpb.AddTrainersRequest{
+	add_trainers_request := running_trackerpb.AddTrainersRequest{
 		Trainers: []*running_trackerpb.Trainer{
 			{
 				Brand:            "Nike",
@@ -62,15 +65,24 @@ func main() {
 		},
 	}
 	//get response
-	res, err := client.AddTrainers(ctx, &request)
+	res_add, err := client.AddTrainers(ctx, &add_trainers_request)
 	if err != nil {
 		log.Fatal("Could not add", err)
 	}
-	state := conn.GetState()
-	log.Println("Connection State: ", state)
 
-	log.Println("IDs:", res.Ids)
-	log.Println("Response message:", res.Message)
+	log.Println("IDs:", res_add.Ids)
+	log.Println("Response message:", res_add.Message)
 
+	get_trainers_request := running_trackerpb.GetTrainersRequest{
+		Trainers: &running_trackerpb.Trainer{
+			Model:        "Pegasus Trail 3",
+			PurchaseDate: "2024-02-04",
+		},
+	}
+	res_get, err := client.GetTrainers(ctx, &get_trainers_request)
+	if err != nil {
+		log.Fatal("Could not get", err)
+	}
+	log.Println("GET response:", res_get)
 
 }

@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	TrainersService_AddTrainers_FullMethodName = "/main.TrainersService/add_trainers"
+	TrainersService_GetTrainers_FullMethodName = "/main.TrainersService/get_trainers"
 )
 
 // TrainersServiceClient is the client API for TrainersService service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type TrainersServiceClient interface {
 	AddTrainers(ctx context.Context, in *AddTrainersRequest, opts ...grpc.CallOption) (*AddTrainersResponse, error)
+	GetTrainers(ctx context.Context, in *GetTrainersRequest, opts ...grpc.CallOption) (*GetTrainersResponse, error)
 }
 
 type trainersServiceClient struct {
@@ -47,11 +49,22 @@ func (c *trainersServiceClient) AddTrainers(ctx context.Context, in *AddTrainers
 	return out, nil
 }
 
+func (c *trainersServiceClient) GetTrainers(ctx context.Context, in *GetTrainersRequest, opts ...grpc.CallOption) (*GetTrainersResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetTrainersResponse)
+	err := c.cc.Invoke(ctx, TrainersService_GetTrainers_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TrainersServiceServer is the server API for TrainersService service.
 // All implementations must embed UnimplementedTrainersServiceServer
 // for forward compatibility.
 type TrainersServiceServer interface {
 	AddTrainers(context.Context, *AddTrainersRequest) (*AddTrainersResponse, error)
+	GetTrainers(context.Context, *GetTrainersRequest) (*GetTrainersResponse, error)
 	mustEmbedUnimplementedTrainersServiceServer()
 }
 
@@ -64,6 +77,9 @@ type UnimplementedTrainersServiceServer struct{}
 
 func (UnimplementedTrainersServiceServer) AddTrainers(context.Context, *AddTrainersRequest) (*AddTrainersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddTrainers not implemented")
+}
+func (UnimplementedTrainersServiceServer) GetTrainers(context.Context, *GetTrainersRequest) (*GetTrainersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetTrainers not implemented")
 }
 func (UnimplementedTrainersServiceServer) mustEmbedUnimplementedTrainersServiceServer() {}
 func (UnimplementedTrainersServiceServer) testEmbeddedByValue()                         {}
@@ -104,6 +120,24 @@ func _TrainersService_AddTrainers_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TrainersService_GetTrainers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetTrainersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TrainersServiceServer).GetTrainers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TrainersService_GetTrainers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TrainersServiceServer).GetTrainers(ctx, req.(*GetTrainersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TrainersService_ServiceDesc is the grpc.ServiceDesc for TrainersService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -114,6 +148,10 @@ var TrainersService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "add_trainers",
 			Handler:    _TrainersService_AddTrainers_Handler,
+		},
+		{
+			MethodName: "get_trainers",
+			Handler:    _TrainersService_GetTrainers_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

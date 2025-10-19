@@ -1,15 +1,14 @@
 package mongodb
 
 import (
-		"context"
-		"fmt"
-		 pb "grpcserver/proto/generated_files"
-		"grpcserver/internals/models"
-		"grpcserver/internals/utils"
-		"go.mongodb.org/mongo-driver/bson/primitive"
-		"reflect"
+	"context"
+	"fmt"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"grpcserver/internals/models"
+	"grpcserver/internals/utils"
+	pb "grpcserver/proto/generated_files"
+	"reflect"
 )
-
 
 func AddTrainersToDB(ctx context.Context, request_trainers []*pb.Trainer) ([]*pb.Trainer, error) {
 	client, err := CreateMongoClient()
@@ -41,7 +40,6 @@ func AddTrainersToDB(ctx context.Context, request_trainers []*pb.Trainer) ([]*pb
 	return addedTrainers, nil
 }
 
-
 func mapModelTrainersToPb(trainers *models.Trainers) *pb.Trainer {
 	pbTrainer := &pb.Trainer{}
 	modelVal := reflect.Indirect(reflect.ValueOf(trainers))
@@ -51,7 +49,7 @@ func mapModelTrainersToPb(trainers *models.Trainers) *pb.Trainer {
 		modelField := modelVal.Field(i)
 		modelFieldType := modelVal.Type().Field(i)
 		pbField := pbVal.FieldByName(modelFieldType.Name)
-		if pbField.IsValid () && pbField.CanSet() {
+		if pbField.IsValid() && pbField.CanSet() {
 			pbField.Set(modelField)
 		}
 	}

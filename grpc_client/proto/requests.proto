@@ -5,6 +5,21 @@ option go_package = "/proto/generated_files;running_trackerpb";
 
 import "trainers.proto";
 
+message SortField {
+    string field = 1;
+    Order order = 2;
+}
+
+enum Order {
+    ASC = 0;
+    DESC = 1;
+}
+
 message AddTrainersRequest {
 	repeated Trainer trainers = 1;
+}
+
+message GetTrainersRequest {
+	Trainer trainers = 1;
+	repeated SortField sort_by = 2;
 }

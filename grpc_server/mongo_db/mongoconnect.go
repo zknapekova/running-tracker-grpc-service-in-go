@@ -4,11 +4,11 @@ import (
 	"context"
 	"fmt"
 	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"grpcserver/internals/utils"
 	"log"
 	"os"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func CreateMongoClient() (*mongo.Client, error) {
