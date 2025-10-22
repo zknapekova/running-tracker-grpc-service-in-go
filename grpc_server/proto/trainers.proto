@@ -29,7 +29,3 @@ message Trainer {
 	TrainerStatus status = 7;
 }
 
-message AddTrainersRequest {
-	repeated Trainer trainers = 1;
-}
-
