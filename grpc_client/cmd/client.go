@@ -75,8 +75,13 @@ func main() {
 
 	get_trainers_request := running_trackerpb.GetTrainersRequest{
 		Trainers: &running_trackerpb.Trainer{
-			Model:        "Pegasus Trail 3",
-			PurchaseDate: "2024-02-04",
+			Brand: "Nike",
+		},
+		SortBy: []*running_trackerpb.SortField{
+			{
+				Field: "purchase_date",
+				Order: running_trackerpb.Order_ASC,
+			},
 		},
 	}
 	res_get, err := client.GetTrainers(ctx, &get_trainers_request)

@@ -4,6 +4,8 @@ import (
 	"context"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"grpcserver/internals/models"
 	"grpcserver/internals/utils"
 	pb "grpcserver/proto/generated_files"
@@ -71,4 +73,43 @@ func mapPbTrainersToModelTrainers(pbTrainer *pb.Trainer) *models.Trainers {
 		}
 	}
 	return &modelTrainers
+}
+
+func GetTrainersFromDb(ctx context.Context, sortOptions primitive.D, filter primitive.M) ([]*pb.Trainer, error) {
+	client, err := CreateMongoClient()
+	if err != nil {
+		return nil, utils.ErrorHandler(err, "Internal Error")
+	}
+	defer client.Disconnect(ctx)
+
+	coll := client.Database("main").Collection("trainers")
+	var cursor *mongo.Cursor
+	if len(sortOptions) < 1 {
+		cursor, err = coll.Find(ctx, filter)
+	} else {
+		cursor, err = coll.Find(ctx, filter, options.Find().SetSort(sortOptions))
+	}
+	if err != nil {
+		return nil, utils.ErrorHandler(err, "Internal Error")
+	}
+	defer cursor.Close(ctx)
+
+	var trainers []*pb.Trainer
+	for cursor.Next(ctx) {
+		var trainer models.Trainers
+		err := cursor.Decode(&trainer)
+		if err != nil {
+			return nil, utils.ErrorHandler(err, "Internal Error")
+		}
+		trainers = append(trainers, &pb.Trainer{
+			Id:               trainer.Id,
+			Brand:            trainer.Brand,
+			Model:            trainer.Model,
+			PurchaseDate:     trainer.PurchaseDate,
+			ExpectedLifespan: trainer.ExpectedLifespan,
+			SurfaceType:      trainer.SurfaceType,
+			Status:           trainer.Status,
+		})
+	}
+	return trainers, nil
 }
