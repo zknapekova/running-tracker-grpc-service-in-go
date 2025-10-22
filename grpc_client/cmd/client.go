@@ -3,8 +3,10 @@ package main
 import (
 	"context"
 	"github.com/joho/godotenv"
+	"golang.org/x/oauth2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
+	"google.golang.org/grpc/credentials/oauth"
 	running_trackerpb "grpcclient/proto/generated_files"
 	"log"
 	"os"
@@ -12,24 +14,31 @@ import (
 )
 
 func main() {
-
 	err := godotenv.Load()
 	if err != nil {
 		log.Fatalf("Error loading .env file: %v", err)
 	}
 
 	certPath := os.Getenv("CERT_PATH")
-
 	if certPath == "" {
 		log.Fatal("CERT_PATH not set")
 	}
+	token := &oauth2.Token{
+		AccessToken: os.Getenv("OAUTH_TOKEN"),
+	}
+
+	perRPC := oauth.TokenSource{TokenSource: oauth2.StaticTokenSource(token)}
 	creds, err := credentials.NewClientTLSFromFile(certPath, "")
 	if err != nil {
 		log.Fatal("Failed to load certificate:", err)
 	}
 
 	// use TLS for secure connection
-	conn, err := grpc.NewClient("localhost:50051", grpc.WithTransportCredentials(creds))
+	opts := []grpc.DialOption{
+		grpc.WithPerRPCCredentials(perRPC),
+		grpc.WithTransportCredentials(creds),
+	}
+	conn, err := grpc.NewClient("localhost:50051", opts...)
 	if err != nil {
 		log.Fatal("Did not connect:", err)
 	}

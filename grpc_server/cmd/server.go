@@ -5,6 +5,7 @@ import (
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"grpcserver/internals/handlers"
+	"grpcserver/internals/interceptors"
 	pb "grpcserver/proto/generated_files"
 	"log"
 	"net"
@@ -41,8 +42,11 @@ func main() {
 	if err != nil {
 		log.Fatal("Failed to load credentials: ", err)
 	}
-
-	grpcServer := grpc.NewServer(grpc.Creds(creds))
+	opts := []grpc.ServerOption{
+		grpc.ChainUnaryInterceptor(interceptors.OUAuthentification),
+		grpc.Creds(creds),
+	}
+	grpcServer := grpc.NewServer(opts...)
 	pb.RegisterTrainersServiceServer(grpcServer, &handlers.Server{})
 
 	log.Println("Server is running on port", port)
