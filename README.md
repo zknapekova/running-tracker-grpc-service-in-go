@@ -6,3 +6,8 @@ The first prototype currently includes add_trainers RPC. It also uses TLS to ens
 ```
 docker compose up grpcserver --build
 ```
+To run the test requests from the client, execute
+```
+cd grpc_client
+go run cmd/client.go
+```
