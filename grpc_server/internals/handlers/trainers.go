@@ -3,16 +3,11 @@ package handlers
 import (
 	"context"
 	"fmt"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"grpcserver/internals/models"
-	"grpcserver/internals/utils"
 	mongodb "grpcserver/mongo_db"
 	pb "grpcserver/proto/generated_files"
-	"reflect"
-	"strings"
 )
 
 func (s *Server) AddTrainers(ctx context.Context, req *pb.AddTrainersRequest) (*pb.AddTrainersResponse, error) {
@@ -57,7 +52,7 @@ func validateTrainersRequest(request_trainers []*pb.Trainer) error {
 }
 
 func (s *Server) GetTrainers(ctx context.Context, req *pb.GetTrainersRequest) (*pb.GetTrainersResponse, error) {
-	filter, err := buildFilterForTrainers(req.Trainers)
+	filter, err := buildFilter(req.Trainers, &models.Trainers{})
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
@@ -68,63 +63,4 @@ func (s *Server) GetTrainers(ctx context.Context, req *pb.GetTrainersRequest) (*
 		return nil, status.Error(codes.Internal, err.Error())
 	}
 	return &pb.GetTrainersResponse{Trainers: trainers}, nil
-}
-
-func buildFilterForTrainers(train_obj *pb.Trainer) (bson.M, error) {
-	filter := bson.M{}
-
-	if train_obj == nil {
-		return filter, nil
-	}
-
-	var modelTrainers models.Trainers
-	modelVal := reflect.ValueOf(&modelTrainers).Elem()
-	modelType := modelVal.Type()
-
-	reqVal := reflect.ValueOf(train_obj).Elem()
-	reqType := reqVal.Type()
-
-	for i := 0; i < reqVal.NumField(); i++ {
-		fieldVal := reqVal.Field(i)
-		fieldName := reqType.Field(i).Name
-
-		if fieldVal.IsValid() && !fieldVal.IsZero() {
-			modelField := modelVal.FieldByName(fieldName)
-			if modelField.IsValid() && modelField.CanSet() {
-				modelField.Set(fieldVal)
-			}
-		}
-	}
-	for i := 0; i < modelVal.NumField(); i++ {
-		fieldVal := modelVal.Field(i)
-
-		if fieldVal.IsValid() && !fieldVal.IsZero() {
-			bsonTag := modelType.Field(i).Tag.Get("bson")
-			bsonTag = strings.TrimSuffix(bsonTag, ",omitempty")
-			if bsonTag == "_id" {
-				objId, err := primitive.ObjectIDFromHex(train_obj.Id)
-				if err != nil {
-					return nil, utils.ErrorHandler(err, "Internal Error")
-				}
-				filter[bsonTag] = objId
-			} else {
-				filter[bsonTag] = fieldVal.Interface().(string)
-			}
-		}
-	}
-	fmt.Println(filter)
-	return filter, nil
-}
-
-func buildSortOptions(sortFields []*pb.SortField) bson.D {
-	var sortOptions bson.D
-	for _, sortField := range sortFields {
-		order := 1
-		if sortField.GetOrder() == pb.Order_DESC {
-			order = -1
-		}
-		sortOptions = append(sortOptions, bson.E{Key: sortField.Field, Value: order})
-	}
-	fmt.Println("Sort options", sortOptions)
-	return sortOptions
 }

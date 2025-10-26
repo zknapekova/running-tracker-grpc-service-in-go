@@ -94,22 +94,13 @@ func GetTrainersFromDb(ctx context.Context, sortOptions primitive.D, filter prim
 	}
 	defer cursor.Close(ctx)
 
-	var trainers []*pb.Trainer
-	for cursor.Next(ctx) {
-		var trainer models.Trainers
-		err := cursor.Decode(&trainer)
-		if err != nil {
-			return nil, utils.ErrorHandler(err, "Internal Error")
-		}
-		trainers = append(trainers, &pb.Trainer{
-			Id:               trainer.Id,
-			Brand:            trainer.Brand,
-			Model:            trainer.Model,
-			PurchaseDate:     trainer.PurchaseDate,
-			ExpectedLifespan: trainer.ExpectedLifespan,
-			SurfaceType:      trainer.SurfaceType,
-			Status:           trainer.Status,
-		})
+	trainers, err := decodeEntities(ctx, cursor, func() *pb.Trainer { return &pb.Trainer{} }, newModel)
+	if err != nil {
+		return nil, err
 	}
 	return trainers, nil
+}
+
+func newModel() *models.Trainers {
+	return &models.Trainers{}
 }
