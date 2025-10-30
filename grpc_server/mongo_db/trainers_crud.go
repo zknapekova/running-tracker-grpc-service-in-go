@@ -2,7 +2,9 @@ package mongodb
 
 import (
 	"context"
+	"errors"
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -21,7 +23,7 @@ func AddTrainersToDB(ctx context.Context, request_trainers []*pb.Trainer) ([]*pb
 
 	newTrainers := make([]*models.Trainers, len(request_trainers))
 	for i, pbTrainers := range request_trainers {
-		newTrainers[i] = mapPbTrainersToModelTrainers(pbTrainers)
+		newTrainers[i] = MapPbTrainersToModelTrainers(pbTrainers)
 	}
 	fmt.Println(newTrainers)
 
@@ -36,13 +38,13 @@ func AddTrainersToDB(ctx context.Context, request_trainers []*pb.Trainer) ([]*pb
 		if ok {
 			trainers.Id = objectID.Hex()
 		}
-		pbTrainer := mapModelTrainersToPb(trainers)
+		pbTrainer := MapModelTrainersToPb(trainers)
 		addedTrainers = append(addedTrainers, pbTrainer)
 	}
 	return addedTrainers, nil
 }
 
-func mapModelTrainersToPb(trainers *models.Trainers) *pb.Trainer {
+func MapModelTrainersToPb(trainers *models.Trainers) *pb.Trainer {
 	pbTrainer := &pb.Trainer{}
 	modelVal := reflect.Indirect(reflect.ValueOf(trainers))
 	pbVal := reflect.Indirect(reflect.ValueOf(pbTrainer))
@@ -58,7 +60,7 @@ func mapModelTrainersToPb(trainers *models.Trainers) *pb.Trainer {
 	return pbTrainer
 }
 
-func mapPbTrainersToModelTrainers(pbTrainer *pb.Trainer) *models.Trainers {
+func MapPbTrainersToModelTrainers(pbTrainer *pb.Trainer) *models.Trainers {
 	modelTrainers := models.Trainers{}
 	pbVal := reflect.Indirect(reflect.ValueOf(pbTrainer))
 	modelVal := reflect.Indirect(reflect.ValueOf(&modelTrainers))
@@ -94,22 +96,58 @@ func GetTrainersFromDb(ctx context.Context, sortOptions primitive.D, filter prim
 	}
 	defer cursor.Close(ctx)
 
-	var trainers []*pb.Trainer
-	for cursor.Next(ctx) {
-		var trainer models.Trainers
-		err := cursor.Decode(&trainer)
-		if err != nil {
-			return nil, utils.ErrorHandler(err, "Internal Error")
-		}
-		trainers = append(trainers, &pb.Trainer{
-			Id:               trainer.Id,
-			Brand:            trainer.Brand,
-			Model:            trainer.Model,
-			PurchaseDate:     trainer.PurchaseDate,
-			ExpectedLifespan: trainer.ExpectedLifespan,
-			SurfaceType:      trainer.SurfaceType,
-			Status:           trainer.Status,
-		})
+	trainers, err := decodeEntities(ctx, cursor, func() *pb.Trainer { return &pb.Trainer{} }, newModel)
+	if err != nil {
+		return nil, err
 	}
 	return trainers, nil
+}
+
+func newModel() *models.Trainers {
+	return &models.Trainers{}
+}
+
+func UpdateTrainersInDB(ctx context.Context, pbTrainers []*pb.Trainer) ([]*pb.Trainer, error) {
+	client, err := CreateMongoClient()
+	if err != nil {
+		return nil, utils.ErrorHandler(err, "internal error")
+	}
+	defer client.Disconnect(ctx)
+
+	var updatedTrainers []*pb.Trainer
+	for _, trainer := range pbTrainers {
+		if trainer.Id == "" {
+			return nil, utils.ErrorHandler(errors.New("Id cannot be blank"), "Id cannot be blank")
+		}
+
+		modelTrainer := MapPbTrainersToModelTrainers(trainer)
+
+		objId, err := primitive.ObjectIDFromHex(trainer.Id)
+		if err != nil {
+			return nil, utils.ErrorHandler(err, "Invalid Id")
+		}
+
+		modelDoc, err := bson.Marshal(modelTrainer)
+		if err != nil {
+			return nil, utils.ErrorHandler(err, "Internal error")
+		}
+
+		var updateDoc bson.M
+		err = bson.Unmarshal(modelDoc, &updateDoc)
+		if err != nil {
+			return nil, utils.ErrorHandler(err, "internal error")
+		}
+
+		delete(updateDoc, "_id")
+
+		_, err = client.Database("main").Collection("trainers").UpdateOne(ctx, bson.M{"_id": objId}, bson.M{"$set": updateDoc})
+		if err != nil {
+			return nil, utils.ErrorHandler(err, fmt.Sprintln("error updating teacher id:", trainer.Id))
+		}
+
+		updatedTrainer := MapModelTrainersToPb(modelTrainer)
+		updatedTrainers = append(updatedTrainers, updatedTrainer)
+
+	}
+	return updatedTrainers, nil
 }

@@ -99,4 +99,21 @@ func main() {
 	}
 	log.Println("GET response:", res_get)
 
+	update_trainers_request := running_trackerpb.UpdateTrainersRequest{
+		Trainers: []*running_trackerpb.Trainer{
+			{
+				Id:           "68ee6e8bdfd4eb56a49e3549",
+				Brand:        "Nike",
+				Model:        "Pegasus Trail 3",
+				PurchaseDate: "2024-02-04",
+				Status:       running_trackerpb.TrainerStatus_RETIRED,
+			},
+		},
+	}
+	res_update, err := client.UpdateTrainers(ctx, &update_trainers_request)
+	if err != nil {
+		log.Fatal("Could not updatet", err)
+	}
+	log.Println("UPDATE response:", res_update)
+
 }
