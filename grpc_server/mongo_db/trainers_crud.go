@@ -2,6 +2,7 @@ package mongodb
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -115,6 +116,10 @@ func UpdateTrainersInDB(ctx context.Context, pbTrainers []*pb.Trainer) ([]*pb.Tr
 
 	var updatedTrainers []*pb.Trainer
 	for _, trainer := range pbTrainers {
+		if trainer.Id == "" {
+			return nil, utils.ErrorHandler(errors.New("Id cannot be blank"), "Id cannot be blank")
+		}
+
 		modelTrainer := MapPbTrainersToModelTrainers(trainer)
 
 		objId, err := primitive.ObjectIDFromHex(trainer.Id)
