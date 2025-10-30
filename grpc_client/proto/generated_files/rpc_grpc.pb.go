@@ -19,8 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	TrainersService_AddTrainers_FullMethodName = "/main.TrainersService/add_trainers"
-	TrainersService_GetTrainers_FullMethodName = "/main.TrainersService/get_trainers"
+	TrainersService_AddTrainers_FullMethodName    = "/main.TrainersService/add_trainers"
+	TrainersService_GetTrainers_FullMethodName    = "/main.TrainersService/get_trainers"
+	TrainersService_UpdateTrainers_FullMethodName = "/main.TrainersService/update_trainers"
 )
 
 // TrainersServiceClient is the client API for TrainersService service.
@@ -29,6 +30,7 @@ const (
 type TrainersServiceClient interface {
 	AddTrainers(ctx context.Context, in *AddTrainersRequest, opts ...grpc.CallOption) (*AddTrainersResponse, error)
 	GetTrainers(ctx context.Context, in *GetTrainersRequest, opts ...grpc.CallOption) (*GetTrainersResponse, error)
+	UpdateTrainers(ctx context.Context, in *UpdateTrainersRequest, opts ...grpc.CallOption) (*UpdateTrainersResponse, error)
 }
 
 type trainersServiceClient struct {
@@ -59,12 +61,23 @@ func (c *trainersServiceClient) GetTrainers(ctx context.Context, in *GetTrainers
 	return out, nil
 }
 
+func (c *trainersServiceClient) UpdateTrainers(ctx context.Context, in *UpdateTrainersRequest, opts ...grpc.CallOption) (*UpdateTrainersResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(UpdateTrainersResponse)
+	err := c.cc.Invoke(ctx, TrainersService_UpdateTrainers_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TrainersServiceServer is the server API for TrainersService service.
 // All implementations must embed UnimplementedTrainersServiceServer
 // for forward compatibility.
 type TrainersServiceServer interface {
 	AddTrainers(context.Context, *AddTrainersRequest) (*AddTrainersResponse, error)
 	GetTrainers(context.Context, *GetTrainersRequest) (*GetTrainersResponse, error)
+	UpdateTrainers(context.Context, *UpdateTrainersRequest) (*UpdateTrainersResponse, error)
 	mustEmbedUnimplementedTrainersServiceServer()
 }
 
@@ -80,6 +93,9 @@ func (UnimplementedTrainersServiceServer) AddTrainers(context.Context, *AddTrain
 }
 func (UnimplementedTrainersServiceServer) GetTrainers(context.Context, *GetTrainersRequest) (*GetTrainersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method GetTrainers not implemented")
+}
+func (UnimplementedTrainersServiceServer) UpdateTrainers(context.Context, *UpdateTrainersRequest) (*UpdateTrainersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method UpdateTrainers not implemented")
 }
 func (UnimplementedTrainersServiceServer) mustEmbedUnimplementedTrainersServiceServer() {}
 func (UnimplementedTrainersServiceServer) testEmbeddedByValue()                         {}
@@ -138,6 +154,24 @@ func _TrainersService_GetTrainers_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TrainersService_UpdateTrainers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(UpdateTrainersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TrainersServiceServer).UpdateTrainers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TrainersService_UpdateTrainers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TrainersServiceServer).UpdateTrainers(ctx, req.(*UpdateTrainersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TrainersService_ServiceDesc is the grpc.ServiceDesc for TrainersService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -152,6 +186,10 @@ var TrainersService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "get_trainers",
 			Handler:    _TrainersService_GetTrainers_Handler,
+		},
+		{
+			MethodName: "update_trainers",
+			Handler:    _TrainersService_UpdateTrainers_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

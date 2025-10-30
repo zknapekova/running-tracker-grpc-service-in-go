@@ -21,7 +21,7 @@ func AddTrainersToDB(ctx context.Context, request_trainers []*pb.Trainer) ([]*pb
 
 	newTrainers := make([]*models.Trainers, len(request_trainers))
 	for i, pbTrainers := range request_trainers {
-		newTrainers[i] = mapPbTrainersToModelTrainers(pbTrainers)
+		newTrainers[i] = MapPbTrainersToModelTrainers(pbTrainers)
 	}
 	fmt.Println(newTrainers)
 
@@ -36,13 +36,13 @@ func AddTrainersToDB(ctx context.Context, request_trainers []*pb.Trainer) ([]*pb
 		if ok {
 			trainers.Id = objectID.Hex()
 		}
-		pbTrainer := mapModelTrainersToPb(trainers)
+		pbTrainer := MapModelTrainersToPb(trainers)
 		addedTrainers = append(addedTrainers, pbTrainer)
 	}
 	return addedTrainers, nil
 }
 
-func mapModelTrainersToPb(trainers *models.Trainers) *pb.Trainer {
+func MapModelTrainersToPb(trainers *models.Trainers) *pb.Trainer {
 	pbTrainer := &pb.Trainer{}
 	modelVal := reflect.Indirect(reflect.ValueOf(trainers))
 	pbVal := reflect.Indirect(reflect.ValueOf(pbTrainer))
@@ -58,7 +58,7 @@ func mapModelTrainersToPb(trainers *models.Trainers) *pb.Trainer {
 	return pbTrainer
 }
 
-func mapPbTrainersToModelTrainers(pbTrainer *pb.Trainer) *models.Trainers {
+func MapPbTrainersToModelTrainers(pbTrainer *pb.Trainer) *models.Trainers {
 	modelTrainers := models.Trainers{}
 	pbVal := reflect.Indirect(reflect.ValueOf(pbTrainer))
 	modelVal := reflect.Indirect(reflect.ValueOf(&modelTrainers))

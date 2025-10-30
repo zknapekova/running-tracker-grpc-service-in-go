@@ -215,6 +215,50 @@ func (x *GetTrainersRequest) GetSortBy() []*SortField {
 	return nil
 }
 
+type UpdateTrainersRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Trainers      []*Trainer             `protobuf:"bytes,1,rep,name=trainers,proto3" json:"trainers,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateTrainersRequest) Reset() {
+	*x = UpdateTrainersRequest{}
+	mi := &file_requests_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateTrainersRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateTrainersRequest) ProtoMessage() {}
+
+func (x *UpdateTrainersRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_requests_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateTrainersRequest.ProtoReflect.Descriptor instead.
+func (*UpdateTrainersRequest) Descriptor() ([]byte, []int) {
+	return file_requests_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *UpdateTrainersRequest) GetTrainers() []*Trainer {
+	if x != nil {
+		return x.Trainers
+	}
+	return nil
+}
+
 var File_requests_proto protoreflect.FileDescriptor
 
 const file_requests_proto_rawDesc = "" +
@@ -227,7 +271,9 @@ const file_requests_proto_rawDesc = "" +
 	"\btrainers\x18\x01 \x03(\v2\r.main.TrainerR\btrainers\"i\n" +
 	"\x12GetTrainersRequest\x12)\n" +
 	"\btrainers\x18\x01 \x01(\v2\r.main.TrainerR\btrainers\x12(\n" +
-	"\asort_by\x18\x02 \x03(\v2\x0f.main.SortFieldR\x06sortBy*\x1a\n" +
+	"\asort_by\x18\x02 \x03(\v2\x0f.main.SortFieldR\x06sortBy\"B\n" +
+	"\x15UpdateTrainersRequest\x12)\n" +
+	"\btrainers\x18\x01 \x03(\v2\r.main.TrainerR\btrainers*\x1a\n" +
 	"\x05Order\x12\a\n" +
 	"\x03ASC\x10\x00\x12\b\n" +
 	"\x04DESC\x10\x01B*Z(/proto/generated_files;running_trackerpbb\x06proto3"
@@ -245,24 +291,26 @@ func file_requests_proto_rawDescGZIP() []byte {
 }
 
 var file_requests_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_requests_proto_msgTypes = make([]protoimpl.MessageInfo, 3)
+var file_requests_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_requests_proto_goTypes = []any{
-	(Order)(0),                 // 0: main.Order
-	(*SortField)(nil),          // 1: main.SortField
-	(*AddTrainersRequest)(nil), // 2: main.AddTrainersRequest
-	(*GetTrainersRequest)(nil), // 3: main.GetTrainersRequest
-	(*Trainer)(nil),            // 4: main.Trainer
+	(Order)(0),                    // 0: main.Order
+	(*SortField)(nil),             // 1: main.SortField
+	(*AddTrainersRequest)(nil),    // 2: main.AddTrainersRequest
+	(*GetTrainersRequest)(nil),    // 3: main.GetTrainersRequest
+	(*UpdateTrainersRequest)(nil), // 4: main.UpdateTrainersRequest
+	(*Trainer)(nil),               // 5: main.Trainer
 }
 var file_requests_proto_depIdxs = []int32{
 	0, // 0: main.SortField.order:type_name -> main.Order
-	4, // 1: main.AddTrainersRequest.trainers:type_name -> main.Trainer
-	4, // 2: main.GetTrainersRequest.trainers:type_name -> main.Trainer
+	5, // 1: main.AddTrainersRequest.trainers:type_name -> main.Trainer
+	5, // 2: main.GetTrainersRequest.trainers:type_name -> main.Trainer
 	1, // 3: main.GetTrainersRequest.sort_by:type_name -> main.SortField
-	4, // [4:4] is the sub-list for method output_type
-	4, // [4:4] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	5, // 4: main.UpdateTrainersRequest.trainers:type_name -> main.Trainer
+	5, // [5:5] is the sub-list for method output_type
+	5, // [5:5] is the sub-list for method input_type
+	5, // [5:5] is the sub-list for extension type_name
+	5, // [5:5] is the sub-list for extension extendee
+	0, // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_requests_proto_init() }
@@ -277,7 +325,7 @@ func file_requests_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_requests_proto_rawDesc), len(file_requests_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   3,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

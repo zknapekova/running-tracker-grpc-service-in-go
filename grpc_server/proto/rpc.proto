@@ -9,4 +9,5 @@ import "requests.proto";
 service TrainersService {
 	rpc add_trainers(AddTrainersRequest) returns (AddTrainersResponse);
 	rpc get_trainers(GetTrainersRequest) returns (GetTrainersResponse);
+	rpc update_trainers(UpdateTrainersRequest) returns (UpdateTrainersResponse);
 }
