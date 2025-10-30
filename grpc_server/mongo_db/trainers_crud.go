@@ -3,6 +3,7 @@ package mongodb
 import (
 	"context"
 	"fmt"
+	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
@@ -103,4 +104,45 @@ func GetTrainersFromDb(ctx context.Context, sortOptions primitive.D, filter prim
 
 func newModel() *models.Trainers {
 	return &models.Trainers{}
+}
+
+func UpdateTrainersInDB(ctx context.Context, pbTrainers []*pb.Trainer) ([]*pb.Trainer, error) {
+	client, err := CreateMongoClient()
+	if err != nil {
+		return nil, utils.ErrorHandler(err, "internal error")
+	}
+	defer client.Disconnect(ctx)
+
+	var updatedTrainers []*pb.Trainer
+	for _, trainer := range pbTrainers {
+		modelTrainer := MapPbTrainersToModelTrainers(trainer)
+
+		objId, err := primitive.ObjectIDFromHex(trainer.Id)
+		if err != nil {
+			return nil, utils.ErrorHandler(err, "Invalid Id")
+		}
+
+		modelDoc, err := bson.Marshal(modelTrainer)
+		if err != nil {
+			return nil, utils.ErrorHandler(err, "Internal error")
+		}
+
+		var updateDoc bson.M
+		err = bson.Unmarshal(modelDoc, &updateDoc)
+		if err != nil {
+			return nil, utils.ErrorHandler(err, "internal error")
+		}
+
+		delete(updateDoc, "_id")
+
+		_, err = client.Database("main").Collection("trainers").UpdateOne(ctx, bson.M{"_id": objId}, bson.M{"$set": updateDoc})
+		if err != nil {
+			return nil, utils.ErrorHandler(err, fmt.Sprintln("error updating teacher id:", trainer.Id))
+		}
+
+		updatedTrainer := MapModelTrainersToPb(modelTrainer)
+		updatedTrainers = append(updatedTrainers, updatedTrainer)
+
+	}
+	return updatedTrainers, nil
 }

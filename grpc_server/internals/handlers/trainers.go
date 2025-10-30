@@ -3,12 +3,9 @@ package handlers
 import (
 	"context"
 	"fmt"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 	"grpcserver/internals/models"
-	"grpcserver/internals/utils"
 	mongodb "grpcserver/mongo_db"
 	pb "grpcserver/proto/generated_files"
 )
@@ -55,6 +52,7 @@ func validateTrainersRequest(request_trainers []*pb.Trainer) error {
 }
 
 func (s *Server) GetTrainers(ctx context.Context, req *pb.GetTrainersRequest) (*pb.GetTrainersResponse, error) {
+
 	filter, err := buildFilter(req.Trainers, &models.Trainers{})
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
@@ -69,44 +67,11 @@ func (s *Server) GetTrainers(ctx context.Context, req *pb.GetTrainersRequest) (*
 }
 
 func (s *Server) UpdateTrainers(ctx context.Context, req *pb.UpdateTrainersRequest) (*pb.UpdateTrainersResponse, error) {
-	client, err := mongodb.CreateMongoClient()
+	updatedTrainers, err := mongodb.UpdateTrainersInDB(ctx, req.Trainers)
 	if err != nil {
-		return nil, utils.ErrorHandler(err, "internal error")
+		return nil, status.Error(codes.Internal, err.Error())
 	}
-	defer client.Disconnect(ctx)
 
-	var updatedTrainers []*pb.Trainer
-	for _, trainer := range req.Trainers {
-		modelTrainer := mongodb.MapPbTrainersToModelTrainers(trainer)
-
-		objId, err := primitive.ObjectIDFromHex(trainer.Id)
-		if err != nil {
-			return nil, utils.ErrorHandler(err, "Invalid Id")
-		}
-
-		modelDoc, err := bson.Marshal(modelTrainer)
-		if err != nil {
-			return nil, utils.ErrorHandler(err, "Internal error")
-		}
-
-		var updateDoc bson.M
-		err = bson.Unmarshal(modelDoc, &updateDoc)
-		if err != nil {
-			return nil, utils.ErrorHandler(err, "internal error")
-		}
-
-		delete(updateDoc, "_id")
-
-		_, err = client.Database("main").Collection("trainers").UpdateOne(ctx, bson.M{"_id": objId}, bson.M{"$set": updateDoc})
-		if err != nil {
-			return nil, utils.ErrorHandler(err, fmt.Sprintln("error updating teacher id:", trainer.Id))
-		}
-
-		updatedTrainer := mongodb.MapModelTrainersToPb(modelTrainer)
-
-		updatedTrainers = append(updatedTrainers, updatedTrainer)
-
-	}
 	ids := make([]string, 0, len(updatedTrainers))
 	for _, t := range updatedTrainers {
 		ids = append(ids, t.Id)
@@ -116,5 +81,4 @@ func (s *Server) UpdateTrainers(ctx context.Context, req *pb.UpdateTrainersReque
 	return &pb.UpdateTrainersResponse{
 		Ids: ids,
 	}, nil
-
 }
