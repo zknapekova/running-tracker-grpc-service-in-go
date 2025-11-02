@@ -89,11 +89,10 @@ func (s *Server) UpdateTrainers(ctx context.Context, req *pb.UpdateTrainersReque
 func (s *Server) DeleteTrainers(ctx context.Context, req *pb.DeleteTrainersRequest) (*pb.DeleteTrainersResponse, error) {
 	ids := req.GetIds()
 
-	var trainersIdsToDelete []string
-
-	for _, v := range ids {
-		trainersIdsToDelete = append(trainersIdsToDelete, v)
+	if len(ids) == 0 {
+		return nil, utils.ErrorHandler(nil, "No trainer IDs provided")
 	}
+
 	client, err := mongodb.CreateMongoClient()
 	if err != nil {
 		return nil, utils.ErrorHandler(err, "internal error")
@@ -101,32 +100,55 @@ func (s *Server) DeleteTrainers(ctx context.Context, req *pb.DeleteTrainersReque
 
 	defer client.Disconnect(ctx)
 
-	objectIds := make([]primitive.ObjectID, len(trainersIdsToDelete))
-	for i, id := range trainersIdsToDelete {
+	objectIds := make([]primitive.ObjectID, len(ids))
+	for _, id := range ids {
 		objectId, err := primitive.ObjectIDFromHex(id)
 		if err != nil {
 			return nil, utils.ErrorHandler(err, fmt.Sprintf("incorrect ids: %v", id))
 		}
-		objectIds[i] = objectId
+		objectIds = append(objectIds, objectId)
 	}
+
+	coll := client.Database("main").Collection("trainers")
 	filter := bson.M{"_id": bson.M{"$in": objectIds}}
-	result, err := client.Database("main").Collection("trainers").DeleteMany(ctx, filter)
+
+	cursor, err := coll.Find(ctx, filter)
 	if err != nil {
 		return nil, utils.ErrorHandler(err, "internal error")
 	}
 
-	if result.DeletedCount == 0 {
-		return nil, utils.ErrorHandler(err, "No teachers were deleted")
+	var foundIds []bson.M
+	err = cursor.All(ctx, &foundIds)
+	if err != nil {
+		return nil, utils.ErrorHandler(err, "internal error")
 	}
+
+	len_foundIds := len(foundIds)
+
+	fmt.Println("foundIds count: ", len_foundIds)
+	if len_foundIds == 0 {
+		return nil, utils.ErrorHandler(err, "No trainers to delete were found in DB")
+	}
+
+	result, err := coll.DeleteMany(ctx, filter)
+	if err != nil {
+		return nil, utils.ErrorHandler(err, "internal error")
+	}
+
 	fmt.Println("deletedCount: ", result.DeletedCount)
-	deletedIds := make([]string, result.DeletedCount)
-	for i, id := range objectIds {
-		deletedIds[i] = id.Hex()
+	if result.DeletedCount == 0 {
+		return nil, utils.ErrorHandler(err, fmt.Sprintf("DatabaseError: %d trainers found, but no trainers were deleted", len_foundIds))
+	}
+
+	deletedIds := make([]string, 0, len_foundIds)
+	for _, found_id := range foundIds {
+		if id, ok := found_id["_id"].(primitive.ObjectID); ok {
+			deletedIds = append(deletedIds, id.Hex())
+		}
 	}
 
 	return &pb.DeleteTrainersResponse{
-		Message: "Trainers successfully deleted",
+		Message: fmt.Sprintf("%d trainer(s) successfully deleted", len_foundIds),
 		Ids:     deletedIds,
 	}, nil
-
 }

@@ -121,6 +121,8 @@ func main() {
 			"6907785fa5bd7fe4571bc8f7",
 			"68f4ebb593fa6c876c84d7a5",
 			"68f168139802a1be78bd388f",
+			"69077f57f07f7b0f1126a5be",
+			"6903cce099ae2a3c14d2a983",
 		},
 	}
 	res_delete, err := client.DeleteTrainers(ctx, &delete_trainers_request)
