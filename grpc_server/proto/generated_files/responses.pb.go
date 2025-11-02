@@ -125,6 +125,110 @@ func (x *GetTrainersResponse) GetTrainers() []*Trainer {
 	return nil
 }
 
+type UpdateTrainersResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	Ids           []string               `protobuf:"bytes,2,rep,name=ids,proto3" json:"ids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateTrainersResponse) Reset() {
+	*x = UpdateTrainersResponse{}
+	mi := &file_responses_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateTrainersResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateTrainersResponse) ProtoMessage() {}
+
+func (x *UpdateTrainersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_responses_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateTrainersResponse.ProtoReflect.Descriptor instead.
+func (*UpdateTrainersResponse) Descriptor() ([]byte, []int) {
+	return file_responses_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *UpdateTrainersResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *UpdateTrainersResponse) GetIds() []string {
+	if x != nil {
+		return x.Ids
+	}
+	return nil
+}
+
+type DeleteTrainersResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Message       string                 `protobuf:"bytes,1,opt,name=message,proto3" json:"message,omitempty"`
+	Ids           []string               `protobuf:"bytes,2,rep,name=ids,proto3" json:"ids,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteTrainersResponse) Reset() {
+	*x = DeleteTrainersResponse{}
+	mi := &file_responses_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteTrainersResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteTrainersResponse) ProtoMessage() {}
+
+func (x *DeleteTrainersResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_responses_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteTrainersResponse.ProtoReflect.Descriptor instead.
+func (*DeleteTrainersResponse) Descriptor() ([]byte, []int) {
+	return file_responses_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *DeleteTrainersResponse) GetMessage() string {
+	if x != nil {
+		return x.Message
+	}
+	return ""
+}
+
+func (x *DeleteTrainersResponse) GetIds() []string {
+	if x != nil {
+		return x.Ids
+	}
+	return nil
+}
+
 var File_responses_proto protoreflect.FileDescriptor
 
 const file_responses_proto_rawDesc = "" +
@@ -135,7 +239,13 @@ const file_responses_proto_rawDesc = "" +
 	"\x03ids\x18\x02 \x03(\tR\x03ids\"Z\n" +
 	"\x13GetTrainersResponse\x12\x18\n" +
 	"\amessage\x18\x01 \x01(\tR\amessage\x12)\n" +
-	"\btrainers\x18\x02 \x03(\v2\r.main.TrainerR\btrainersB*Z(/proto/generated_files;running_trackerpbb\x06proto3"
+	"\btrainers\x18\x02 \x03(\v2\r.main.TrainerR\btrainers\"D\n" +
+	"\x16UpdateTrainersResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\x12\x10\n" +
+	"\x03ids\x18\x02 \x03(\tR\x03ids\"D\n" +
+	"\x16DeleteTrainersResponse\x12\x18\n" +
+	"\amessage\x18\x01 \x01(\tR\amessage\x12\x10\n" +
+	"\x03ids\x18\x02 \x03(\tR\x03idsB*Z(/proto/generated_files;running_trackerpbb\x06proto3"
 
 var (
 	file_responses_proto_rawDescOnce sync.Once
@@ -149,14 +259,16 @@ func file_responses_proto_rawDescGZIP() []byte {
 	return file_responses_proto_rawDescData
 }
 
-var file_responses_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_responses_proto_msgTypes = make([]protoimpl.MessageInfo, 4)
 var file_responses_proto_goTypes = []any{
-	(*AddTrainersResponse)(nil), // 0: main.AddTrainersResponse
-	(*GetTrainersResponse)(nil), // 1: main.GetTrainersResponse
-	(*Trainer)(nil),             // 2: main.Trainer
+	(*AddTrainersResponse)(nil),    // 0: main.AddTrainersResponse
+	(*GetTrainersResponse)(nil),    // 1: main.GetTrainersResponse
+	(*UpdateTrainersResponse)(nil), // 2: main.UpdateTrainersResponse
+	(*DeleteTrainersResponse)(nil), // 3: main.DeleteTrainersResponse
+	(*Trainer)(nil),                // 4: main.Trainer
 }
 var file_responses_proto_depIdxs = []int32{
-	2, // 0: main.GetTrainersResponse.trainers:type_name -> main.Trainer
+	4, // 0: main.GetTrainersResponse.trainers:type_name -> main.Trainer
 	1, // [1:1] is the sub-list for method output_type
 	1, // [1:1] is the sub-list for method input_type
 	1, // [1:1] is the sub-list for extension type_name
@@ -176,7 +288,7 @@ func file_responses_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_responses_proto_rawDesc), len(file_responses_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   4,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

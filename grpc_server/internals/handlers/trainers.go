@@ -11,8 +11,6 @@ import (
 	"grpcserver/internals/utils"
 	mongodb "grpcserver/mongo_db"
 	pb "grpcserver/proto/generated_files"
-	"reflect"
-	"strings"
 )
 
 func (s *Server) AddTrainers(ctx context.Context, req *pb.AddTrainersRequest) (*pb.AddTrainersResponse, error) {
@@ -57,7 +55,8 @@ func validateTrainersRequest(request_trainers []*pb.Trainer) error {
 }
 
 func (s *Server) GetTrainers(ctx context.Context, req *pb.GetTrainersRequest) (*pb.GetTrainersResponse, error) {
-	filter, err := buildFilterForTrainers(req.Trainers)
+
+	filter, err := buildFilter(req.Trainers, &models.Trainers{})
 	if err != nil {
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
@@ -70,61 +69,86 @@ func (s *Server) GetTrainers(ctx context.Context, req *pb.GetTrainersRequest) (*
 	return &pb.GetTrainersResponse{Trainers: trainers}, nil
 }
 
-func buildFilterForTrainers(train_obj *pb.Trainer) (bson.M, error) {
-	filter := bson.M{}
-
-	if train_obj == nil {
-		return filter, nil
+func (s *Server) UpdateTrainers(ctx context.Context, req *pb.UpdateTrainersRequest) (*pb.UpdateTrainersResponse, error) {
+	updatedTrainers, err := mongodb.UpdateTrainersInDB(ctx, req.Trainers)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
 	}
 
-	var modelTrainers models.Trainers
-	modelVal := reflect.ValueOf(&modelTrainers).Elem()
-	modelType := modelVal.Type()
-
-	reqVal := reflect.ValueOf(train_obj).Elem()
-	reqType := reqVal.Type()
-
-	for i := 0; i < reqVal.NumField(); i++ {
-		fieldVal := reqVal.Field(i)
-		fieldName := reqType.Field(i).Name
-
-		if fieldVal.IsValid() && !fieldVal.IsZero() {
-			modelField := modelVal.FieldByName(fieldName)
-			if modelField.IsValid() && modelField.CanSet() {
-				modelField.Set(fieldVal)
-			}
-		}
+	ids := make([]string, 0, len(updatedTrainers))
+	for _, t := range updatedTrainers {
+		ids = append(ids, t.Id)
 	}
-	for i := 0; i < modelVal.NumField(); i++ {
-		fieldVal := modelVal.Field(i)
+	fmt.Println(ids)
 
-		if fieldVal.IsValid() && !fieldVal.IsZero() {
-			bsonTag := modelType.Field(i).Tag.Get("bson")
-			bsonTag = strings.TrimSuffix(bsonTag, ",omitempty")
-			if bsonTag == "_id" {
-				objId, err := primitive.ObjectIDFromHex(train_obj.Id)
-				if err != nil {
-					return nil, utils.ErrorHandler(err, "Internal Error")
-				}
-				filter[bsonTag] = objId
-			} else {
-				filter[bsonTag] = fieldVal.Interface().(string)
-			}
-		}
-	}
-	fmt.Println(filter)
-	return filter, nil
+	return &pb.UpdateTrainersResponse{
+		Ids: ids,
+	}, nil
 }
 
-func buildSortOptions(sortFields []*pb.SortField) bson.D {
-	var sortOptions bson.D
-	for _, sortField := range sortFields {
-		order := 1
-		if sortField.GetOrder() == pb.Order_DESC {
-			order = -1
-		}
-		sortOptions = append(sortOptions, bson.E{Key: sortField.Field, Value: order})
+func (s *Server) DeleteTrainers(ctx context.Context, req *pb.DeleteTrainersRequest) (*pb.DeleteTrainersResponse, error) {
+	ids := req.GetIds()
+
+	if len(ids) == 0 {
+		return nil, utils.ErrorHandler(nil, "No trainer IDs provided")
 	}
-	fmt.Println("Sort options", sortOptions)
-	return sortOptions
+
+	client, err := mongodb.CreateMongoClient()
+	if err != nil {
+		return nil, utils.ErrorHandler(err, "internal error")
+	}
+
+	defer client.Disconnect(ctx)
+
+	objectIds := make([]primitive.ObjectID, len(ids))
+	for _, id := range ids {
+		objectId, err := primitive.ObjectIDFromHex(id)
+		if err != nil {
+			return nil, utils.ErrorHandler(err, fmt.Sprintf("incorrect ids: %v", id))
+		}
+		objectIds = append(objectIds, objectId)
+	}
+
+	coll := client.Database("main").Collection("trainers")
+	filter := bson.M{"_id": bson.M{"$in": objectIds}}
+
+	cursor, err := coll.Find(ctx, filter)
+	if err != nil {
+		return nil, utils.ErrorHandler(err, "internal error")
+	}
+
+	var foundIds []bson.M
+	err = cursor.All(ctx, &foundIds)
+	if err != nil {
+		return nil, utils.ErrorHandler(err, "internal error")
+	}
+
+	len_foundIds := len(foundIds)
+
+	fmt.Println("foundIds count: ", len_foundIds)
+	if len_foundIds == 0 {
+		return nil, utils.ErrorHandler(err, "No trainers to delete were found in DB")
+	}
+
+	result, err := coll.DeleteMany(ctx, filter)
+	if err != nil {
+		return nil, utils.ErrorHandler(err, "internal error")
+	}
+
+	fmt.Println("deletedCount: ", result.DeletedCount)
+	if result.DeletedCount == 0 {
+		return nil, utils.ErrorHandler(err, fmt.Sprintf("DatabaseError: %d trainers found, but no trainers were deleted", len_foundIds))
+	}
+
+	deletedIds := make([]string, 0, len_foundIds)
+	for _, found_id := range foundIds {
+		if id, ok := found_id["_id"].(primitive.ObjectID); ok {
+			deletedIds = append(deletedIds, id.Hex())
+		}
+	}
+
+	return &pb.DeleteTrainersResponse{
+		Message: fmt.Sprintf("%d trainer(s) successfully deleted", len_foundIds),
+		Ids:     deletedIds,
+	}, nil
 }

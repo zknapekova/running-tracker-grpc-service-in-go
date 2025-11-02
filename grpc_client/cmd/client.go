@@ -99,4 +99,36 @@ func main() {
 	}
 	log.Println("GET response:", res_get)
 
+	update_trainers_request := running_trackerpb.UpdateTrainersRequest{
+		Trainers: []*running_trackerpb.Trainer{
+			{
+				Id:           "68ee6e8bdfd4eb56a49e3549",
+				Brand:        "Nike",
+				Model:        "Pegasus Trail 3",
+				PurchaseDate: "2024-02-04",
+				Status:       running_trackerpb.TrainerStatus_RETIRED,
+			},
+		},
+	}
+	res_update, err := client.UpdateTrainers(ctx, &update_trainers_request)
+	if err != nil {
+		log.Fatal("Could not updatet", err)
+	}
+	log.Println("UPDATE response:", res_update)
+
+	delete_trainers_request := running_trackerpb.DeleteTrainersRequest{
+		Ids: []string{
+			"6907785fa5bd7fe4571bc8f7",
+			"68f4ebb593fa6c876c84d7a5",
+			"68f168139802a1be78bd388f",
+			"69077f57f07f7b0f1126a5be",
+			"6903cce099ae2a3c14d2a983",
+		},
+	}
+	res_delete, err := client.DeleteTrainers(ctx, &delete_trainers_request)
+	if err != nil {
+		log.Fatal("Could not delete", err)
+	}
+	log.Println("DELETE response:", res_delete)
+
 }

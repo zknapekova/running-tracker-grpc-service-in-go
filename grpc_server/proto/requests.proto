@@ -23,3 +23,11 @@ message GetTrainersRequest {
 	Trainer trainers = 1;
 	repeated SortField sort_by = 2;
 }
+
+message UpdateTrainersRequest {
+	repeated Trainer trainers = 1;
+}
+
+message DeleteTrainersRequest {
+	repeated string ids = 1;
+}

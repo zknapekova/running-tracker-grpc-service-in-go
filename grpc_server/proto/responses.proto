@@ -14,3 +14,13 @@ message GetTrainersResponse {
   string message = 1;
   repeated Trainer trainers = 2;
 }
+
+message UpdateTrainersResponse {
+  string message = 1;
+  repeated string ids = 2;
+}
+
+message DeleteTrainersResponse {
+  string message = 1;
+  repeated string ids = 2;
+}
