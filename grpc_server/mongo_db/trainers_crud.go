@@ -11,7 +11,6 @@ import (
 	"grpcserver/internals/models"
 	"grpcserver/internals/utils"
 	pb "grpcserver/proto/generated_files"
-	"reflect"
 )
 
 func AddTrainersToDB(ctx context.Context, request_trainers []*pb.Trainer) ([]*pb.Trainer, error) {
@@ -42,39 +41,6 @@ func AddTrainersToDB(ctx context.Context, request_trainers []*pb.Trainer) ([]*pb
 		addedTrainers = append(addedTrainers, pbTrainer)
 	}
 	return addedTrainers, nil
-}
-
-func MapModelTrainersToPb(trainers *models.Trainers) *pb.Trainer {
-	pbTrainer := &pb.Trainer{}
-	modelVal := reflect.Indirect(reflect.ValueOf(trainers))
-	pbVal := reflect.Indirect(reflect.ValueOf(pbTrainer))
-
-	for i := 0; i < modelVal.NumField(); i++ {
-		modelField := modelVal.Field(i)
-		modelFieldType := modelVal.Type().Field(i)
-		pbField := pbVal.FieldByName(modelFieldType.Name)
-		if pbField.IsValid() && pbField.CanSet() {
-			pbField.Set(modelField)
-		}
-	}
-	return pbTrainer
-}
-
-func MapPbTrainersToModelTrainers(pbTrainer *pb.Trainer) *models.Trainers {
-	modelTrainers := models.Trainers{}
-	pbVal := reflect.Indirect(reflect.ValueOf(pbTrainer))
-	modelVal := reflect.Indirect(reflect.ValueOf(&modelTrainers))
-
-	for i := 0; i < pbVal.NumField(); i++ {
-		pbField := pbVal.Field(i)
-		fieldName := pbVal.Type().Field(i).Name
-
-		modelField := modelVal.FieldByName(fieldName)
-		if modelField.IsValid() && modelField.CanSet() {
-			modelField.Set(pbField)
-		}
-	}
-	return &modelTrainers
 }
 
 func GetTrainersFromDb(ctx context.Context, sortOptions primitive.D, filter primitive.M) ([]*pb.Trainer, error) {

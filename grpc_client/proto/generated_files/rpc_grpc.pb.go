@@ -22,6 +22,7 @@ const (
 	TrainersService_AddTrainers_FullMethodName    = "/main.TrainersService/add_trainers"
 	TrainersService_GetTrainers_FullMethodName    = "/main.TrainersService/get_trainers"
 	TrainersService_UpdateTrainers_FullMethodName = "/main.TrainersService/update_trainers"
+	TrainersService_DeleteTrainers_FullMethodName = "/main.TrainersService/delete_trainers"
 )
 
 // TrainersServiceClient is the client API for TrainersService service.
@@ -31,6 +32,7 @@ type TrainersServiceClient interface {
 	AddTrainers(ctx context.Context, in *AddTrainersRequest, opts ...grpc.CallOption) (*AddTrainersResponse, error)
 	GetTrainers(ctx context.Context, in *GetTrainersRequest, opts ...grpc.CallOption) (*GetTrainersResponse, error)
 	UpdateTrainers(ctx context.Context, in *UpdateTrainersRequest, opts ...grpc.CallOption) (*UpdateTrainersResponse, error)
+	DeleteTrainers(ctx context.Context, in *DeleteTrainersRequest, opts ...grpc.CallOption) (*DeleteTrainersResponse, error)
 }
 
 type trainersServiceClient struct {
@@ -71,6 +73,16 @@ func (c *trainersServiceClient) UpdateTrainers(ctx context.Context, in *UpdateTr
 	return out, nil
 }
 
+func (c *trainersServiceClient) DeleteTrainers(ctx context.Context, in *DeleteTrainersRequest, opts ...grpc.CallOption) (*DeleteTrainersResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeleteTrainersResponse)
+	err := c.cc.Invoke(ctx, TrainersService_DeleteTrainers_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // TrainersServiceServer is the server API for TrainersService service.
 // All implementations must embed UnimplementedTrainersServiceServer
 // for forward compatibility.
@@ -78,6 +90,7 @@ type TrainersServiceServer interface {
 	AddTrainers(context.Context, *AddTrainersRequest) (*AddTrainersResponse, error)
 	GetTrainers(context.Context, *GetTrainersRequest) (*GetTrainersResponse, error)
 	UpdateTrainers(context.Context, *UpdateTrainersRequest) (*UpdateTrainersResponse, error)
+	DeleteTrainers(context.Context, *DeleteTrainersRequest) (*DeleteTrainersResponse, error)
 	mustEmbedUnimplementedTrainersServiceServer()
 }
 
@@ -96,6 +109,9 @@ func (UnimplementedTrainersServiceServer) GetTrainers(context.Context, *GetTrain
 }
 func (UnimplementedTrainersServiceServer) UpdateTrainers(context.Context, *UpdateTrainersRequest) (*UpdateTrainersResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method UpdateTrainers not implemented")
+}
+func (UnimplementedTrainersServiceServer) DeleteTrainers(context.Context, *DeleteTrainersRequest) (*DeleteTrainersResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method DeleteTrainers not implemented")
 }
 func (UnimplementedTrainersServiceServer) mustEmbedUnimplementedTrainersServiceServer() {}
 func (UnimplementedTrainersServiceServer) testEmbeddedByValue()                         {}
@@ -172,6 +188,24 @@ func _TrainersService_UpdateTrainers_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _TrainersService_DeleteTrainers_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeleteTrainersRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(TrainersServiceServer).DeleteTrainers(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: TrainersService_DeleteTrainers_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(TrainersServiceServer).DeleteTrainers(ctx, req.(*DeleteTrainersRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // TrainersService_ServiceDesc is the grpc.ServiceDesc for TrainersService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -190,6 +224,10 @@ var TrainersService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "update_trainers",
 			Handler:    _TrainersService_UpdateTrainers_Handler,
+		},
+		{
+			MethodName: "delete_trainers",
+			Handler:    _TrainersService_DeleteTrainers_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

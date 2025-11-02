@@ -116,4 +116,17 @@ func main() {
 	}
 	log.Println("UPDATE response:", res_update)
 
+	delete_trainers_request := running_trackerpb.DeleteTrainersRequest{
+		Ids: []string{
+			"6907785fa5bd7fe4571bc8f7",
+			"68f4ebb593fa6c876c84d7a5",
+			"68f168139802a1be78bd388f",
+		},
+	}
+	res_delete, err := client.DeleteTrainers(ctx, &delete_trainers_request)
+	if err != nil {
+		log.Fatal("Could not delete", err)
+	}
+	log.Println("DELETE response:", res_delete)
+
 }
