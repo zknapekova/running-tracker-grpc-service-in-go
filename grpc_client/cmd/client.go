@@ -13,6 +13,118 @@ import (
 	"time"
 )
 
+func assert(condition bool, msg string) {
+	if !condition {
+		log.Fatal("TEST FAILED: ", msg)
+	}
+}
+
+func add_trainers_ok(ctx context.Context, client running_trackerpb.TrainersServiceClient) {
+
+	add_trainers_request := running_trackerpb.AddTrainersRequest{
+		Trainers: []*running_trackerpb.Trainer{
+			{
+				Brand:            "Nike",
+				Model:            "Pegasus Trail 3",
+				PurchaseDate:     "2024-02-04",
+				ExpectedLifespan: 700,
+				SurfaceType:      running_trackerpb.SurfaceType_ROAD_TO_TRAIL,
+				Status:           running_trackerpb.TrainerStatus_NEW,
+			},
+			{
+				Brand:            "Nike",
+				Model:            "Pegasus Trail 4",
+				PurchaseDate:     "2025-01-01",
+				ExpectedLifespan: 700,
+				SurfaceType:      running_trackerpb.SurfaceType_TRAIL,
+				Status:           running_trackerpb.TrainerStatus_NEW,
+			},
+		},
+	}
+	res_add, err := client.AddTrainers(ctx, &add_trainers_request)
+	if err != nil {
+		log.Fatal("Could not add", err)
+	}
+
+	log.Println("IDs:", res_add.Ids)
+	log.Println("Response message:", res_add.Message)
+	assert(len(res_add.Ids) == len(add_trainers_request.Trainers), "Number of returned IDs does not match number of added trainers")
+}
+
+func get_trainers_ok(ctx context.Context, client running_trackerpb.TrainersServiceClient) {
+
+	get_trainers_request := running_trackerpb.GetTrainersRequest{
+		Trainers: &running_trackerpb.Trainer{
+			Brand: "Nike",
+		},
+		SortBy: []*running_trackerpb.SortField{
+			{
+				Field: "purchase_date",
+				Order: running_trackerpb.Order_ASC,
+			},
+		},
+	}
+	res_get, err := client.GetTrainers(ctx, &get_trainers_request)
+	if err != nil {
+		log.Fatal("Could not get", err)
+	}
+	log.Println("GET response:", res_get)
+	assert(len(res_get.Trainers) > 0, "No trainers returned from GetTrainers")
+}
+
+func update_trainers_ok(ctx context.Context, client running_trackerpb.TrainersServiceClient) {
+	update_trainers_request := running_trackerpb.UpdateTrainersRequest{
+		Trainers: []*running_trackerpb.Trainer{
+			{
+				Id:           "68ee6e8bdfd4eb56a49e3549",
+				Brand:        "Nike",
+				Model:        "Pegasus Trail 3",
+				PurchaseDate: "2024-02-04",
+				Status:       running_trackerpb.TrainerStatus_RETIRED,
+			},
+		},
+	}
+
+	res_update, err := client.UpdateTrainers(ctx, &update_trainers_request)
+	if err != nil {
+		log.Fatal("Could not update", err)
+	}
+	log.Println("UPDATE response:", res_update)
+	assert(len(res_update.Ids) > 0, "Update operation did not return any IDs")
+}
+
+func delete_trainers_ok(ctx context.Context, client running_trackerpb.TrainersServiceClient) {
+	add_trainers_request := running_trackerpb.AddTrainersRequest{
+		Trainers: []*running_trackerpb.Trainer{
+			{
+				Brand:            "Nike",
+				Model:            "Pegasus Trail 5",
+				PurchaseDate:     "2025-02-04",
+				ExpectedLifespan: 700,
+				SurfaceType:      running_trackerpb.SurfaceType_ROAD_TO_TRAIL,
+				Status:           running_trackerpb.TrainerStatus_NEW,
+			},
+		},
+	}
+	res_add, err := client.AddTrainers(ctx, &add_trainers_request)
+	if err != nil {
+		log.Fatal("Could not add", err)
+	}
+
+	delete_trainers_request := running_trackerpb.DeleteTrainersRequest{
+		Ids: []string{
+			res_add.Ids[0],
+		},
+	}
+	res_delete, err := client.DeleteTrainers(ctx, &delete_trainers_request)
+	if err != nil {
+		log.Fatal("Could not delete", err)
+	}
+	log.Println("DELETE response:", res_delete)
+	assert(len(res_delete.Ids) > 0, "Delete operation did not return any IDs")
+
+}
+
 func main() {
 	err := godotenv.Load()
 	if err != nil {
@@ -52,83 +164,8 @@ func main() {
 	ctx, cancel := context.WithTimeout(context.Background(), 120*time.Second)
 	defer cancel()
 
-	//create request
-	add_trainers_request := running_trackerpb.AddTrainersRequest{
-		Trainers: []*running_trackerpb.Trainer{
-			{
-				Brand:            "Nike",
-				Model:            "Pegasus Trail 3",
-				PurchaseDate:     "2024-02-04",
-				ExpectedLifespan: 700,
-				SurfaceType:      running_trackerpb.SurfaceType_ROAD_TO_TRAIL,
-				Status:           running_trackerpb.TrainerStatus_NEW,
-			},
-			{
-				Brand:            "Nike",
-				Model:            "Pegasus Trail 4",
-				PurchaseDate:     "2025-01-01",
-				ExpectedLifespan: 700,
-				SurfaceType:      running_trackerpb.SurfaceType_TRAIL,
-				Status:           running_trackerpb.TrainerStatus_NEW,
-			},
-		},
-	}
-	//get response
-	res_add, err := client.AddTrainers(ctx, &add_trainers_request)
-	if err != nil {
-		log.Fatal("Could not add", err)
-	}
-
-	log.Println("IDs:", res_add.Ids)
-	log.Println("Response message:", res_add.Message)
-
-	get_trainers_request := running_trackerpb.GetTrainersRequest{
-		Trainers: &running_trackerpb.Trainer{
-			Brand: "Nike",
-		},
-		SortBy: []*running_trackerpb.SortField{
-			{
-				Field: "purchase_date",
-				Order: running_trackerpb.Order_ASC,
-			},
-		},
-	}
-	res_get, err := client.GetTrainers(ctx, &get_trainers_request)
-	if err != nil {
-		log.Fatal("Could not get", err)
-	}
-	log.Println("GET response:", res_get)
-
-	update_trainers_request := running_trackerpb.UpdateTrainersRequest{
-		Trainers: []*running_trackerpb.Trainer{
-			{
-				Id:           "68ee6e8bdfd4eb56a49e3549",
-				Brand:        "Nike",
-				Model:        "Pegasus Trail 3",
-				PurchaseDate: "2024-02-04",
-				Status:       running_trackerpb.TrainerStatus_RETIRED,
-			},
-		},
-	}
-	res_update, err := client.UpdateTrainers(ctx, &update_trainers_request)
-	if err != nil {
-		log.Fatal("Could not updatet", err)
-	}
-	log.Println("UPDATE response:", res_update)
-
-	delete_trainers_request := running_trackerpb.DeleteTrainersRequest{
-		Ids: []string{
-			"6907785fa5bd7fe4571bc8f7",
-			"68f4ebb593fa6c876c84d7a5",
-			"68f168139802a1be78bd388f",
-			"69077f57f07f7b0f1126a5be",
-			"6903cce099ae2a3c14d2a983",
-		},
-	}
-	res_delete, err := client.DeleteTrainers(ctx, &delete_trainers_request)
-	if err != nil {
-		log.Fatal("Could not delete", err)
-	}
-	log.Println("DELETE response:", res_delete)
-
+	add_trainers_ok(ctx, client)
+	get_trainers_ok(ctx, client)
+	update_trainers_ok(ctx, client)
+	delete_trainers_ok(ctx, client)
 }
