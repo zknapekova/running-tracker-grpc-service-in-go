@@ -29,7 +29,7 @@ func AddTrainersToDB(ctx context.Context, request_trainers []*pb.Trainer) ([]*pb
 	var addedTrainers []*pb.Trainer
 	for _, trainers := range newTrainers {
 		fmt.Printf("Inserting trainers: %+v\n", trainers)
-		result, err := client.Database("main").Collection("trainers").InsertOne(ctx, trainers)
+		result, err := client.Database("data").Collection("trainers").InsertOne(ctx, trainers)
 		if err != nil {
 			return nil, utils.ErrorHandler(err, "Error adding value to database")
 		}
@@ -50,7 +50,7 @@ func GetTrainersFromDb(ctx context.Context, sortOptions primitive.D, filter prim
 	}
 	defer client.Disconnect(ctx)
 
-	coll := client.Database("main").Collection("trainers")
+	coll := client.Database("data").Collection("trainers")
 	var cursor *mongo.Cursor
 	if len(sortOptions) < 1 {
 		cursor, err = coll.Find(ctx, filter)
@@ -106,7 +106,7 @@ func UpdateTrainersInDB(ctx context.Context, pbTrainers []*pb.Trainer) ([]*pb.Tr
 
 		delete(updateDoc, "_id")
 
-		_, err = client.Database("main").Collection("trainers").UpdateOne(ctx, bson.M{"_id": objId}, bson.M{"$set": updateDoc})
+		_, err = client.Database("data").Collection("trainers").UpdateOne(ctx, bson.M{"_id": objId}, bson.M{"$set": updateDoc})
 		if err != nil {
 			return nil, utils.ErrorHandler(err, fmt.Sprintln("error updating teacher id:", trainer.Id))
 		}

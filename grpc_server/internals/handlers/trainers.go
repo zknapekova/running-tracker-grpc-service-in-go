@@ -109,7 +109,7 @@ func (s *Server) DeleteTrainers(ctx context.Context, req *pb.DeleteTrainersReque
 		objectIds = append(objectIds, objectId)
 	}
 
-	coll := client.Database("main").Collection("trainers")
+	coll := client.Database("data").Collection("trainers")
 	filter := bson.M{"_id": bson.M{"$in": objectIds}}
 
 	cursor, err := coll.Find(ctx, filter)
