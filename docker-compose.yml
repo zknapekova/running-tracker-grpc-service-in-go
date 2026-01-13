@@ -13,16 +13,31 @@ services:
       MONGO_INITDB_ROOT_PASSWORD: pass
       MONGO_INITDB_DATABASE: data
 
-  grpcserver:
+  grpcserver_dev:
     build:
       context: ./grpc_server
       dockerfile: Dockerfile
+      target: development
     depends_on:
       - mongodb
     ports:
       - "50051:50051"
-    command: [ "./grpcserver" ]
+    volumes:
+      - ./grpc_server:/app/
+    command: ["air", "-c", "air.toml"]
 
+  grpcserver:
+    build:
+      context: ./grpc_server
+      dockerfile: Dockerfile
+      target: production
+    depends_on:
+      - mongodb
+    ports:
+      - "50051:50051"
+    volumes:
+      - ./grpc_server:/app/
+    command: [ "./grpcserver" ]
 
 volumes:
   mongo_data:
