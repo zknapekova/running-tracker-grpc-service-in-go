@@ -22,8 +22,6 @@ services:
       - mongodb
     ports:
       - "50051:50051"
-    volumes:
-      - ./grpc_server:/app/
     command: ["air", "-c", "air.toml"]
 
   grpcserver:
@@ -35,8 +33,6 @@ services:
       - mongodb
     ports:
       - "50051:50051"
-    volumes:
-      - ./grpc_server:/app/
     command: [ "./grpcserver" ]
 
 volumes:
