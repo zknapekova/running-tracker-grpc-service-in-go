@@ -8,7 +8,7 @@ db.createCollection('tracked_activities', {
       properties: {
         name: {
           bsonType: 'string',
-          descrption: "activity name"
+          description: "activity name"
         },
         duration: {
           bsonType: 'int',

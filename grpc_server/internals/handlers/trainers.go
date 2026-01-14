@@ -17,7 +17,7 @@ func (s *Server) AddTrainers(ctx context.Context, req *pb.AddTrainersRequest) (*
 	request_trainers := req.GetTrainers()
 
 	//validation
-	if err := validateTrainersRequest(request_trainers); err != nil {
+	if err := validateAddTrainersRequest(request_trainers); err != nil {
 		return nil, err
 	}
 
@@ -39,19 +39,6 @@ func (s *Server) AddTrainers(ctx context.Context, req *pb.AddTrainersRequest) (*
 		Message: "Trainers were added to database",
 		Ids:     ids,
 	}, nil
-}
-
-func validateTrainersRequest(request_trainers []*pb.Trainer) error {
-	if len(request_trainers) == 0 {
-		return status.Error(codes.InvalidArgument, "No trainers provided")
-	}
-
-	for _, trainer := range request_trainers {
-		if trainer.Id != "" {
-			return status.Error(codes.InvalidArgument, "request contains trainer with predefined ID")
-		}
-	}
-	return nil
 }
 
 func (s *Server) GetTrainers(ctx context.Context, req *pb.GetTrainersRequest) (*pb.GetTrainersResponse, error) {
