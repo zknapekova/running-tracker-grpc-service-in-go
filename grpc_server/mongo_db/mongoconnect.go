@@ -34,7 +34,6 @@ func CreateMongoClient() (*mongo.Client, error) {
 
 	err = client.Ping(ctx, nil)
 	if err != nil {
-		fmt.Println(err)
 		return nil, utils.ErrorHandler(err, "Unable to ping to database")
 	}
 

@@ -26,14 +26,14 @@ func (s *Server) AddTrainers(ctx context.Context, req *pb.AddTrainersRequest) (*
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	fmt.Println(addedTrainers)
+	utils.InfoLogger.Println(addedTrainers)
 
 	//extract ids
 	ids := make([]string, 0, len(addedTrainers))
 	for _, t := range addedTrainers {
 		ids = append(ids, t.Id)
 	}
-	fmt.Println(ids)
+	utils.InfoLogger.Println(ids)
 
 	return &pb.AddTrainersResponse{
 		Message: "Trainers were added to database",
@@ -66,7 +66,7 @@ func (s *Server) UpdateTrainers(ctx context.Context, req *pb.UpdateTrainersReque
 	for _, t := range updatedTrainers {
 		ids = append(ids, t.Id)
 	}
-	fmt.Println(ids)
+	utils.InfoLogger.Println(ids)
 
 	return &pb.UpdateTrainersResponse{
 		Ids: ids,
@@ -112,7 +112,7 @@ func (s *Server) DeleteTrainers(ctx context.Context, req *pb.DeleteTrainersReque
 
 	len_foundIds := len(foundIds)
 
-	fmt.Println("foundIds count: ", len_foundIds)
+	utils.InfoLogger.Println("foundIds count: ", len_foundIds)
 	if len_foundIds == 0 {
 		return nil, utils.ErrorHandler(err, "No trainers to delete were found in DB")
 	}
@@ -122,7 +122,7 @@ func (s *Server) DeleteTrainers(ctx context.Context, req *pb.DeleteTrainersReque
 		return nil, utils.ErrorHandler(err, "internal error")
 	}
 
-	fmt.Println("deletedCount: ", result.DeletedCount)
+	utils.InfoLogger.Println("deletedCount: ", result.DeletedCount)
 	if result.DeletedCount == 0 {
 		return nil, utils.ErrorHandler(err, fmt.Sprintf("DatabaseError: %d trainers found, but no trainers were deleted", len_foundIds))
 	}

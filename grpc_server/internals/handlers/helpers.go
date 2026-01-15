@@ -1,7 +1,6 @@
 package handlers
 
 import (
-	"fmt"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"grpcserver/internals/utils"
@@ -48,11 +47,11 @@ func buildFilter(object interface{}, model interface{}) (bson.M, error) {
 				}
 				filter[bsonTag] = objId
 			} else {
-				filter[bsonTag] = fieldVal.Interface().(string)
+				filter[bsonTag] = fieldVal.Interface()
 			}
 		}
 	}
-	fmt.Println(filter)
+	utils.InfoLogger.Println(filter)
 	return filter, nil
 }
 
@@ -65,6 +64,6 @@ func buildSortOptions(sortFields []*pb.SortField) bson.D {
 		}
 		sortOptions = append(sortOptions, bson.E{Key: sortField.Field, Value: order})
 	}
-	fmt.Println("Sort options", sortOptions)
+	utils.InfoLogger.Println("Sort options", sortOptions)
 	return sortOptions
 }

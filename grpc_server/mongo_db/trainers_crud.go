@@ -24,7 +24,7 @@ func AddTrainersToDB(ctx context.Context, request_trainers []*pb.Trainer) ([]*pb
 	for i, pbTrainers := range request_trainers {
 		newTrainers[i] = MapPbTrainersToModelTrainers(pbTrainers)
 	}
-	fmt.Println(newTrainers)
+	utils.InfoLogger.Println(newTrainers)
 
 	var addedTrainers []*pb.Trainer
 	for _, trainers := range newTrainers {
