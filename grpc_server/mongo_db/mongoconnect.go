@@ -38,6 +38,12 @@ func CreateMongoClient() (*mongo.Client, error) {
 		return nil, utils.ErrorHandler(err, "Unable to ping to database")
 	}
 
-	log.Println("Connected to MongoDB")
+	utils.InfoLogger.Println("Connected to MongoDB")
 	return client, nil
+}
+
+func DisconnectMongoClient(client *mongo.Client, ctx context.Context) {
+	if err := client.Disconnect(ctx); err != nil {
+		utils.ErrorLogger.Println("Failed to disconnect the database")
+	}
 }

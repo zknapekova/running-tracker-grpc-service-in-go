@@ -19,7 +19,7 @@ func TestBuildSortOptions_Empty(t *testing.T) {
 }
 
 func TestBuildSortOptions_Desc(t *testing.T) {
-	// Check that buildSortOptions returns the correct documet when descending order is requested
+	// Check that buildSortOptions returns the correct document when descending order is requested
 
 	field_name := "test"
 	input := []*pb.SortField{
@@ -37,7 +37,7 @@ func TestBuildSortOptions_Desc(t *testing.T) {
 }
 
 func TestBuildSortOptions_Asc(t *testing.T) {
-	// Verify that buildSortOptions returns the correct documet when ascending order is requested
+	// Verify that buildSortOptions returns the correct document when ascending order is requested
 
 	field_name := "test"
 	input := []*pb.SortField{
@@ -55,7 +55,7 @@ func TestBuildSortOptions_Asc(t *testing.T) {
 }
 
 func TestBuildSortOptions_DescAsc(t *testing.T) {
-	// Verify that buildSortOptions returns the correct documet when ascending order is requested
+	// Verify that buildSortOptions returns the correct document when both descending and ascending order are requested
 
 	field_name_desc := "test_desc"
 	field_name_asc := "test_asc"

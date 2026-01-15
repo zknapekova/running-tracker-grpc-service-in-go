@@ -17,7 +17,7 @@ func OUAuthentification(ctx context.Context, req interface{}, info *grpc.UnarySe
 	if err != nil {
 		log.Fatalf("Error loading .env file: %v", err)
 	}
-	token := os.Getenv("OAUTH_TOKEN")
+	token := strings.TrimSpace(os.Getenv("OAUTH_TOKEN"))
 
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
@@ -28,7 +28,6 @@ func OUAuthentification(ctx context.Context, req interface{}, info *grpc.UnarySe
 		return nil, status.Errorf(codes.Unauthenticated, "Authorization token unavailable")
 	}
 	ctx_token := strings.TrimPrefix(authHeader[0], "Bearer ")
-	ctx_token = strings.TrimSpace(token)
 	if ctx_token != token {
 		return nil, status.Errorf(codes.PermissionDenied, "Incorrect token: Permission denied")
 	}

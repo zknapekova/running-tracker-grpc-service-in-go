@@ -18,7 +18,7 @@ func AddTrainersToDB(ctx context.Context, request_trainers []*pb.Trainer) ([]*pb
 	if err != nil {
 		return nil, utils.ErrorHandler(err, "internal error")
 	}
-	defer client.Disconnect(ctx)
+	defer DisconnectMongoClient(client, ctx)
 
 	newTrainers := make([]*models.Trainers, len(request_trainers))
 	for i, pbTrainers := range request_trainers {
@@ -48,7 +48,7 @@ func GetTrainersFromDb(ctx context.Context, sortOptions primitive.D, filter prim
 	if err != nil {
 		return nil, utils.ErrorHandler(err, "Internal Error")
 	}
-	defer client.Disconnect(ctx)
+	defer DisconnectMongoClient(client, ctx)
 
 	coll := client.Database("data").Collection("trainers")
 	var cursor *mongo.Cursor
@@ -60,7 +60,12 @@ func GetTrainersFromDb(ctx context.Context, sortOptions primitive.D, filter prim
 	if err != nil {
 		return nil, utils.ErrorHandler(err, "Internal Error")
 	}
-	defer cursor.Close(ctx)
+
+	defer func() {
+		if err := cursor.Close(ctx); err != nil {
+			utils.ErrorLogger.Printf("Failed to close the cursor: %v", err)
+		}
+	}()
 
 	trainers, err := decodeEntities(ctx, cursor, func() *pb.Trainer { return &pb.Trainer{} }, newModel)
 	if err != nil {
@@ -78,12 +83,12 @@ func UpdateTrainersInDB(ctx context.Context, pbTrainers []*pb.Trainer) ([]*pb.Tr
 	if err != nil {
 		return nil, utils.ErrorHandler(err, "internal error")
 	}
-	defer client.Disconnect(ctx)
+	defer DisconnectMongoClient(client, ctx)
 
 	var updatedTrainers []*pb.Trainer
 	for _, trainer := range pbTrainers {
 		if trainer.Id == "" {
-			return nil, utils.ErrorHandler(errors.New("Id cannot be blank"), "Id cannot be blank")
+			return nil, utils.ErrorHandler(errors.New("id cannot be blank"), "id cannot be blank")
 		}
 
 		modelTrainer := MapPbTrainersToModelTrainers(trainer)

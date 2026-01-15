@@ -1,0 +1,15 @@
+golangci_lint_version := "v2.8.0"
+
+# use powershell if running on windows
+# https://just.systems/man/en/configuring-the-shell.html
+set windows-shell := ["powershell.exe", "-c"]
+
+#run linter
+lint:
+    docker run --rm -v {{ justfile_directory() }}:/app -w /app golangci/golangci-lint:{{golangci_lint_version}} golangci-lint run
+
+#run unit tests
+unit_tests:
+    go clean -testcache
+    go test -v {{ justfile_directory() }}/...
+
