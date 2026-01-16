@@ -3,14 +3,15 @@ package handlers
 import (
 	"context"
 	"fmt"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"grpcserver/internals/models"
 	"grpcserver/internals/utils"
 	mongodb "grpcserver/mongo_db"
 	pb "grpcserver/proto/generated_files"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func (s *Server) AddTrainers(ctx context.Context, req *pb.AddTrainersRequest) (*pb.AddTrainersResponse, error) {
@@ -57,6 +58,11 @@ func (s *Server) GetTrainers(ctx context.Context, req *pb.GetTrainersRequest) (*
 }
 
 func (s *Server) UpdateTrainers(ctx context.Context, req *pb.UpdateTrainersRequest) (*pb.UpdateTrainersResponse, error) {
+
+	if err := validateUpdateTrainersRequest(req.Trainers); err != nil {
+		return nil, err
+	}
+
 	updatedTrainers, err := mongodb.UpdateTrainersInDB(ctx, req.Trainers)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())

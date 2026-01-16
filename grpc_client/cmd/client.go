@@ -2,15 +2,16 @@ package main
 
 import (
 	"context"
+	running_trackerpb "grpcclient/proto/generated_files"
+	"log"
+	"os"
+	"time"
+
 	"github.com/joho/godotenv"
 	"golang.org/x/oauth2"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/credentials"
 	"google.golang.org/grpc/credentials/oauth"
-	running_trackerpb "grpcclient/proto/generated_files"
-	"log"
-	"os"
-	"time"
 )
 
 func assert(condition bool, msg string) {

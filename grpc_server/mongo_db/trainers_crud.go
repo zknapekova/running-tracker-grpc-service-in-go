@@ -2,15 +2,15 @@ package mongodb
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"grpcserver/internals/models"
+	"grpcserver/internals/utils"
+	pb "grpcserver/proto/generated_files"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"grpcserver/internals/models"
-	"grpcserver/internals/utils"
-	pb "grpcserver/proto/generated_files"
 )
 
 func AddTrainersToDB(ctx context.Context, request_trainers []*pb.Trainer) ([]*pb.Trainer, error) {
@@ -28,7 +28,7 @@ func AddTrainersToDB(ctx context.Context, request_trainers []*pb.Trainer) ([]*pb
 
 	var addedTrainers []*pb.Trainer
 	for _, trainers := range newTrainers {
-		fmt.Printf("Inserting trainers: %+v\n", trainers)
+		utils.DebugLogger.Printf("Inserting trainers: %+v\n", trainers)
 		result, err := client.Database("data").Collection("trainers").InsertOne(ctx, trainers)
 		if err != nil {
 			return nil, utils.ErrorHandler(err, "Error adding value to database")
@@ -81,15 +81,12 @@ func newModel() *models.Trainers {
 func UpdateTrainersInDB(ctx context.Context, pbTrainers []*pb.Trainer) ([]*pb.Trainer, error) {
 	client, err := CreateMongoClient()
 	if err != nil {
-		return nil, utils.ErrorHandler(err, "internal error")
+		return nil, utils.ErrorHandler(err, "Internal error")
 	}
 	defer DisconnectMongoClient(client, ctx)
 
 	var updatedTrainers []*pb.Trainer
 	for _, trainer := range pbTrainers {
-		if trainer.Id == "" {
-			return nil, utils.ErrorHandler(errors.New("id cannot be blank"), "id cannot be blank")
-		}
 
 		modelTrainer := MapPbTrainersToModelTrainers(trainer)
 
@@ -106,7 +103,7 @@ func UpdateTrainersInDB(ctx context.Context, pbTrainers []*pb.Trainer) ([]*pb.Tr
 		var updateDoc bson.M
 		err = bson.Unmarshal(modelDoc, &updateDoc)
 		if err != nil {
-			return nil, utils.ErrorHandler(err, "internal error")
+			return nil, utils.ErrorHandler(err, "Internal error")
 		}
 
 		delete(updateDoc, "_id")
