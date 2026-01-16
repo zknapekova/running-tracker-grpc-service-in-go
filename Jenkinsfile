@@ -1,7 +1,20 @@
+properties([
+    parameters([
+        choice(
+            name: 'ACTION',
+            defaultValue: 'test',
+            choices: [
+                    'test', 'release',
+            ]
+        ),
+    ])
+])
+goVersion='1.24.1'
+
 pipeline {
     agent any
     tools {
-        go 'go1.24'
+        go "${goVersion}"
         'org.jenkinsci.plugins.docker.commons.tools.DockerTool' 'myDocker'
     }
     stages {
@@ -12,9 +25,15 @@ pipeline {
             }
         }
         stage('Unit tests') {
+            when {
+                expression { params.ACTION == 'test' }
+            }
             steps {
-                sh 'cd grpc_server'
-                sh 'go test -v ./...'
+                sh(
+                    script: """
+                        cd grpc_server
+                        go test -v ./...""",
+                )
             }
         }
     }
