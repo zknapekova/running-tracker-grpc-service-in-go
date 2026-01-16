@@ -13,3 +13,8 @@ unit_tests:
     go clean -testcache
     go test -v {{ justfile_directory() }}/...
 
+#run integration tests
+e2e_tests:
+    cd ../grpc_client/
+    go clean -testcache
+    go test -v {{ justfile_directory() }}/...
