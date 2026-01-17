@@ -6,7 +6,7 @@ The fourth prototype currently includes AddActivities, AddTrainers, GetTrainers,
 ```
 docker compose up grpcserver --build
 ```
-For running tests, execute
+For running tests, navigate to the grpc_server directory and execute
 ```
 just unit_tests
 ```
