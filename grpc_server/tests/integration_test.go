@@ -22,7 +22,7 @@ var (
 	new_client   *client.Client
 	ctx          context.Context
 	mongo_client *mongo.Client
-	coll         *mongo.Collection
+	db           *mongo.Database
 )
 
 func TestMain(m *testing.M) {
@@ -39,7 +39,7 @@ func TestMain(m *testing.M) {
 		OAuthToken: token,
 	}
 
-	new_client, err = client.CreateTrainersServiceClient(config)
+	new_client, err = client.CreateServiceClient(config)
 	if err != nil {
 		log.Fatal("Connection to service failed ", err)
 	}
@@ -51,7 +51,7 @@ func TestMain(m *testing.M) {
 	if err != nil {
 		log.Fatal("Connection to database failed ", err)
 	}
-	coll = mongo_client.Database("data").Collection("trainers")
+	db = mongo_client.Database("data")
 
 	code := m.Run()
 
@@ -67,7 +67,7 @@ func TestAddTrainers_ok(t *testing.T) {
 	add_trainers_request := running_trackerpb.AddTrainersRequest{
 		Trainers: []*running_trackerpb.Trainer{
 			{
-				Brand:            "test_brand3",
+				Brand:            "test_brand1",
 				Model:            "test_model1",
 				PurchaseDate:     "2024-02-04",
 				ExpectedLifespan: 700,
@@ -75,7 +75,7 @@ func TestAddTrainers_ok(t *testing.T) {
 				Status:           running_trackerpb.TrainerStatus_NEW,
 			},
 			{
-				Brand:            "test_brand3",
+				Brand:            "test_brand1",
 				Model:            "test_model2",
 				PurchaseDate:     "2025-01-01",
 				ExpectedLifespan: 700,
@@ -102,18 +102,21 @@ func TestAddTrainers_ok(t *testing.T) {
 
 	// db clean up
 	t.Cleanup(func() {
-		_, err_delete := coll.DeleteMany(ctx, filter)
+		_, err_delete := db.Collection("trainers").DeleteMany(ctx, filter)
 		if err_delete != nil {
-			t.Logf("CLEAN_UP: Failed to delete trainer1: %v", err)
+			t.Logf("CLEAN_UP: Failed to delete trainers: %v", err)
 		}
 	})
 
-	cursor, err := coll.Find(context.Background(), filter)
+	cursor, err := db.Collection("trainers").Find(context.Background(), filter)
 	if err != nil {
 		t.Fatalf("Could not query the DB: %s ", err)
 	}
 	var foundIds []bson.M
 	err = cursor.All(ctx, &foundIds)
+	if err != nil {
+		t.Fatalf("Decoding failed: %s ", err)
+	}
 
 	if len(foundIds) != len(add_trainers_request.Trainers) {
 		t.Fatalf("Number of found IDs in DB does not match number of added trainers")
@@ -139,13 +142,13 @@ func TestGetTrainers_sort(t *testing.T) {
 
 	t.Cleanup(func() {
 		filter := bson.M{"_id": test_trainers1.ID}
-		_, err_delete := coll.DeleteOne(context.Background(), filter)
+		_, err_delete := db.Collection("trainers").DeleteOne(context.Background(), filter)
 		if err_delete != nil {
 			t.Logf("CLEAN_UP: Failed to delete trainer1: %v", err_delete)
 		}
 
 		filter = bson.M{"_id": test_trainers2.ID}
-		_, err_delete = coll.DeleteOne(context.Background(), filter)
+		_, err_delete = db.Collection("trainers").DeleteOne(context.Background(), filter)
 		if err_delete != nil {
 			t.Logf("CLEAN_UP: Failed to delete trainer2: %v", err_delete)
 		}
@@ -195,7 +198,7 @@ func TestUpdateTrainers_ok(t *testing.T) {
 	test_trainers := insertTestTrainer(t, mongo_client, "test_brand1", "model1")
 
 	t.Cleanup(func() {
-		_, err_delete := coll.DeleteOne(context.Background(), bson.M{"_id": test_trainers.ID})
+		_, err_delete := db.Collection("trainers").DeleteOne(context.Background(), bson.M{"_id": test_trainers.ID})
 		if err_delete != nil {
 			t.Logf("CLEAN_UP: Failed to delete trainers: %v", err_delete)
 		}
@@ -228,7 +231,7 @@ func TestUpdateTrainers_ok(t *testing.T) {
 	//db check
 	var updatedTrainer TrainerDocument
 	filter := bson.M{"_id": test_trainers.ID}
-	err = coll.FindOne(context.Background(), filter).Decode(&updatedTrainer)
+	err = db.Collection("trainers").FindOne(context.Background(), filter).Decode(&updatedTrainer)
 	if err != nil {
 		t.Fatalf("Could not query the DB: %s ", err)
 	}
@@ -247,7 +250,7 @@ func TestDeleteTrainers_ok(t *testing.T) {
 
 	test_trainers := insertTestTrainer(t, mongo_client, "test_brand1", "model1")
 	t.Cleanup(func() {
-		_, err_delete := coll.DeleteOne(context.Background(), bson.M{"_id": test_trainers.ID})
+		_, err_delete := db.Collection("trainers").DeleteOne(context.Background(), bson.M{"_id": test_trainers.ID})
 		if err_delete != nil {
 			t.Logf("CLEAN_UP: Failed to delete trainers : %v", err_delete)
 		}
@@ -272,14 +275,87 @@ func TestDeleteTrainers_ok(t *testing.T) {
 
 	//db check
 	filter := bson.M{"_id": test_trainers.ID}
-	cursor, err := coll.Find(context.Background(), filter)
+	cursor, err := db.Collection("trainers").Find(context.Background(), filter)
 	if err != nil {
 		t.Fatalf("Could not query the DB: %s ", err)
 	}
 	var found []bson.M
 	err = cursor.All(ctx, &found)
+	if err != nil {
+		t.Fatalf("Decoding failed: %s ", err)
+	}
 
 	if len(found) != 0 {
 		t.Fatal("Delete failed, number of records found in db: ", len(found))
+	}
+}
+
+func TestAddActivities_ok(t *testing.T) {
+	// The test sends AddActivity request, checks the response and verifies that data were inserted in DB
+
+	add_activities_request := running_trackerpb.AddActivitiesRequest{
+		Activities: []*running_trackerpb.Activity{
+			{
+				Name:          "running",
+				Duration:      45,
+				Distance:      8,
+				Date:          "2026-01-01",
+				TrainersBrand: "test_brand",
+				TrainersModel: "test_model",
+			},
+			{
+				Name:     "cycling",
+				Duration: 135,
+				Distance: 50,
+				Date:     "2026-01-02",
+			},
+		},
+	}
+	res_add, err := new_client.Activities.AddActivities(ctx, &add_activities_request)
+	if err != nil {
+		t.Fatal("Could not add ", err)
+	}
+
+	log.Println("IDs:", res_add.Ids)
+
+	//db check
+	objectIds := make([]primitive.ObjectID, len(res_add.Ids))
+	for _, id := range res_add.Ids {
+		objectId, _ := primitive.ObjectIDFromHex(id)
+		objectIds = append(objectIds, objectId)
+	}
+
+	filter := bson.M{"_id": bson.M{"$in": objectIds}}
+
+	// db clean up
+	t.Cleanup(func() {
+		_, err_delete := db.Collection("tracked_activities").DeleteMany(ctx, filter)
+		if err_delete != nil {
+			t.Logf("CLEAN_UP: Failed to delete activity: %v", err)
+		}
+	})
+
+	cursor, err := db.Collection("tracked_activities").Find(context.Background(), filter)
+	if err != nil {
+		t.Fatalf("Could not query the DB: %s ", err)
+	}
+	var foundIds []bson.M
+	err = cursor.All(ctx, &foundIds)
+	if err != nil {
+		t.Fatalf("Decoding failed: %s ", err)
+	}
+
+	if len(foundIds) != len(add_activities_request.Activities) {
+		t.Fatalf("Number of found IDs in DB does not match number of added trainers")
+	}
+
+	//response check
+	expected_message := "Activities were added to the database"
+	if expected_message != res_add.Message {
+		t.Fatalf("Expected message %s, got %s", expected_message, res_add.Message)
+	}
+
+	if len(res_add.Ids) != len(add_activities_request.Activities) {
+		t.Fatalf("Number of returned IDs does not match number of added activities")
 	}
 }

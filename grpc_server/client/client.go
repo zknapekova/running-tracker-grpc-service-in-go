@@ -16,11 +16,12 @@ type Config struct {
 }
 
 type Client struct {
-	Conn     *grpc.ClientConn
-	Trainers running_trackerpb.TrainersServiceClient
+	Conn       *grpc.ClientConn
+	Trainers   running_trackerpb.TrainersServiceClient
+	Activities running_trackerpb.ActivitiesServiceClient
 }
 
-func CreateTrainersServiceClient(cfg Config) (*Client, error) {
+func CreateServiceClient(cfg Config) (*Client, error) {
 
 	if cfg.CertPath == "" {
 		log.Fatal("CERT_PATH not set")
@@ -50,11 +51,13 @@ func CreateTrainersServiceClient(cfg Config) (*Client, error) {
 	state := conn.GetState()
 	log.Println("Connection State: ", state)
 
-	//create new client
-	client := running_trackerpb.NewTrainersServiceClient(conn)
+	//create new clients
+	trainersClient := running_trackerpb.NewTrainersServiceClient(conn)
+	activitiesClient := running_trackerpb.NewActivitiesServiceClient(conn)
 
 	return &Client{
-		Conn:     conn,
-		Trainers: client,
+		Conn:       conn,
+		Trainers:   trainersClient,
+		Activities: activitiesClient,
 	}, nil
 }
