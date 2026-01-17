@@ -1,0 +1,26 @@
+golangci_lint_version := "v2.8.0"
+unit_tests_dir := "internals"
+integration_tests_dir := "tests"
+all_proto := "*.proto"
+
+# use powershell if running on windows
+# https://just.systems/man/en/configuring-the-shell.html
+set windows-shell := ["powershell.exe", "-c"]
+
+#run linter
+lint:
+    docker run --rm -v {{ justfile_directory() }}:/app -w /app golangci/golangci-lint:{{golangci_lint_version}} golangci-lint run
+
+#run unit tests
+unit_tests:
+    go clean -testcache
+    go test -v {{ justfile_directory() }}/{{ unit_tests_dir }}/...
+
+#run integration tests
+e2e_tests:
+    go clean -testcache
+    go test -v {{ justfile_directory() }}/{{ integration_tests_dir }}/...
+
+#compile protobuf files
+protoc:
+    docker run --rm -v {{ justfile_directory() }}:/workspace -w /workspace namely/protoc-all -d proto -l go -o .

@@ -3,12 +3,13 @@ package mongodb
 import (
 	"context"
 	"fmt"
-	"github.com/joho/godotenv"
-	"go.mongodb.org/mongo-driver/mongo"
-	"go.mongodb.org/mongo-driver/mongo/options"
 	"grpcserver/internals/utils"
 	"log"
 	"os"
+
+	"github.com/joho/godotenv"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
 func CreateMongoClient() (*mongo.Client, error) {
@@ -20,13 +21,15 @@ func CreateMongoClient() (*mongo.Client, error) {
 
 	username := os.Getenv("MONGODB_USERNAME")
 	password := os.Getenv("MONGODB_PASSWORD")
+	host := os.Getenv("MONGODB_HOST")
+	port := os.Getenv("MONGODB_PORT")
 
 	if username == "" || password == "" {
 		log.Fatal("MONGODB_USERNAME or MONGODB_PASSWORD not set")
 	}
 
 	ctx := context.Background()
-	mongoURI := fmt.Sprintf("mongodb://%s:%s@mongodb:27017/?authSource=admin", username, password)
+	mongoURI := fmt.Sprintf("mongodb://%s:%s@%s:%s/?authSource=admin", username, password, host, port)
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoURI))
 	if err != nil {
 		return nil, utils.ErrorHandler(err, "Unable to connect to database")
@@ -34,10 +37,15 @@ func CreateMongoClient() (*mongo.Client, error) {
 
 	err = client.Ping(ctx, nil)
 	if err != nil {
-		fmt.Println(err)
 		return nil, utils.ErrorHandler(err, "Unable to ping to database")
 	}
 
-	log.Println("Connected to MongoDB")
+	utils.InfoLogger.Println("Connected to MongoDB")
 	return client, nil
+}
+
+func DisconnectMongoClient(client *mongo.Client, ctx context.Context) {
+	if err := client.Disconnect(ctx); err != nil {
+		utils.ErrorLogger.Println("Failed to disconnect the database")
+	}
 }

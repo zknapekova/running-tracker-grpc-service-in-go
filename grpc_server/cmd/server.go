@@ -6,6 +6,7 @@ import (
 	"google.golang.org/grpc/credentials"
 	"grpcserver/internals/handlers"
 	"grpcserver/internals/interceptors"
+	"grpcserver/internals/utils"
 	pb "grpcserver/proto/generated_files"
 	"log"
 	"net"
@@ -48,8 +49,9 @@ func main() {
 	}
 	grpcServer := grpc.NewServer(opts...)
 	pb.RegisterTrainersServiceServer(grpcServer, &handlers.Server{})
+	pb.RegisterActivitiesServiceServer(grpcServer, &handlers.Server{})
 
-	log.Println("Server is running on port", port)
+	utils.InfoLogger.Println("Server is running on port", port)
 
 	// start the server
 	err = grpcServer.Serve(listener)

@@ -3,21 +3,22 @@ package handlers
 import (
 	"context"
 	"fmt"
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
-	"google.golang.org/grpc/codes"
-	"google.golang.org/grpc/status"
 	"grpcserver/internals/models"
 	"grpcserver/internals/utils"
 	mongodb "grpcserver/mongo_db"
 	pb "grpcserver/proto/generated_files"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"google.golang.org/grpc/codes"
+	"google.golang.org/grpc/status"
 )
 
 func (s *Server) AddTrainers(ctx context.Context, req *pb.AddTrainersRequest) (*pb.AddTrainersResponse, error) {
 	request_trainers := req.GetTrainers()
 
 	//validation
-	if err := validateTrainersRequest(request_trainers); err != nil {
+	if err := validateAddTrainersRequest(request_trainers); err != nil {
 		return nil, err
 	}
 
@@ -26,32 +27,19 @@ func (s *Server) AddTrainers(ctx context.Context, req *pb.AddTrainersRequest) (*
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	fmt.Println(addedTrainers)
+	utils.InfoLogger.Println(addedTrainers)
 
 	//extract ids
 	ids := make([]string, 0, len(addedTrainers))
 	for _, t := range addedTrainers {
 		ids = append(ids, t.Id)
 	}
-	fmt.Println(ids)
+	utils.InfoLogger.Println(ids)
 
 	return &pb.AddTrainersResponse{
 		Message: "Trainers were added to database",
 		Ids:     ids,
 	}, nil
-}
-
-func validateTrainersRequest(request_trainers []*pb.Trainer) error {
-	if len(request_trainers) == 0 {
-		return status.Error(codes.InvalidArgument, "No trainers provided")
-	}
-
-	for _, trainer := range request_trainers {
-		if trainer.Id != "" {
-			return status.Error(codes.InvalidArgument, "request contains trainer with predefined ID")
-		}
-	}
-	return nil
 }
 
 func (s *Server) GetTrainers(ctx context.Context, req *pb.GetTrainersRequest) (*pb.GetTrainersResponse, error) {
@@ -70,6 +58,11 @@ func (s *Server) GetTrainers(ctx context.Context, req *pb.GetTrainersRequest) (*
 }
 
 func (s *Server) UpdateTrainers(ctx context.Context, req *pb.UpdateTrainersRequest) (*pb.UpdateTrainersResponse, error) {
+
+	if err := validateUpdateTrainersRequest(req.Trainers); err != nil {
+		return nil, err
+	}
+
 	updatedTrainers, err := mongodb.UpdateTrainersInDB(ctx, req.Trainers)
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
@@ -79,7 +72,7 @@ func (s *Server) UpdateTrainers(ctx context.Context, req *pb.UpdateTrainersReque
 	for _, t := range updatedTrainers {
 		ids = append(ids, t.Id)
 	}
-	fmt.Println(ids)
+	utils.InfoLogger.Println(ids)
 
 	return &pb.UpdateTrainersResponse{
 		Ids: ids,
@@ -98,7 +91,7 @@ func (s *Server) DeleteTrainers(ctx context.Context, req *pb.DeleteTrainersReque
 		return nil, utils.ErrorHandler(err, "internal error")
 	}
 
-	defer client.Disconnect(ctx)
+	defer mongodb.DisconnectMongoClient(client, ctx)
 
 	objectIds := make([]primitive.ObjectID, len(ids))
 	for _, id := range ids {
@@ -109,7 +102,7 @@ func (s *Server) DeleteTrainers(ctx context.Context, req *pb.DeleteTrainersReque
 		objectIds = append(objectIds, objectId)
 	}
 
-	coll := client.Database("main").Collection("trainers")
+	coll := client.Database("data").Collection("trainers")
 	filter := bson.M{"_id": bson.M{"$in": objectIds}}
 
 	cursor, err := coll.Find(ctx, filter)
@@ -125,7 +118,7 @@ func (s *Server) DeleteTrainers(ctx context.Context, req *pb.DeleteTrainersReque
 
 	len_foundIds := len(foundIds)
 
-	fmt.Println("foundIds count: ", len_foundIds)
+	utils.InfoLogger.Println("foundIds count: ", len_foundIds)
 	if len_foundIds == 0 {
 		return nil, utils.ErrorHandler(err, "No trainers to delete were found in DB")
 	}
@@ -135,7 +128,7 @@ func (s *Server) DeleteTrainers(ctx context.Context, req *pb.DeleteTrainersReque
 		return nil, utils.ErrorHandler(err, "internal error")
 	}
 
-	fmt.Println("deletedCount: ", result.DeletedCount)
+	utils.InfoLogger.Println("deletedCount: ", result.DeletedCount)
 	if result.DeletedCount == 0 {
 		return nil, utils.ErrorHandler(err, fmt.Sprintf("DatabaseError: %d trainers found, but no trainers were deleted", len_foundIds))
 	}

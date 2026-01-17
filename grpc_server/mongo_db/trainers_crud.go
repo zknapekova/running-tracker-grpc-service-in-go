@@ -2,15 +2,15 @@ package mongodb
 
 import (
 	"context"
-	"errors"
 	"fmt"
+	"grpcserver/internals/models"
+	"grpcserver/internals/utils"
+	pb "grpcserver/proto/generated_files"
+
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
-	"grpcserver/internals/models"
-	"grpcserver/internals/utils"
-	pb "grpcserver/proto/generated_files"
 )
 
 func AddTrainersToDB(ctx context.Context, request_trainers []*pb.Trainer) ([]*pb.Trainer, error) {
@@ -18,18 +18,18 @@ func AddTrainersToDB(ctx context.Context, request_trainers []*pb.Trainer) ([]*pb
 	if err != nil {
 		return nil, utils.ErrorHandler(err, "internal error")
 	}
-	defer client.Disconnect(ctx)
+	defer DisconnectMongoClient(client, ctx)
 
 	newTrainers := make([]*models.Trainers, len(request_trainers))
 	for i, pbTrainers := range request_trainers {
 		newTrainers[i] = MapPbTrainersToModelTrainers(pbTrainers)
 	}
-	fmt.Println(newTrainers)
+	utils.InfoLogger.Println(newTrainers)
 
 	var addedTrainers []*pb.Trainer
 	for _, trainers := range newTrainers {
-		fmt.Printf("Inserting trainers: %+v\n", trainers)
-		result, err := client.Database("main").Collection("trainers").InsertOne(ctx, trainers)
+		utils.DebugLogger.Printf("Inserting trainers: %+v\n", trainers)
+		result, err := client.Database("data").Collection("trainers").InsertOne(ctx, trainers)
 		if err != nil {
 			return nil, utils.ErrorHandler(err, "Error adding value to database")
 		}
@@ -48,9 +48,9 @@ func GetTrainersFromDb(ctx context.Context, sortOptions primitive.D, filter prim
 	if err != nil {
 		return nil, utils.ErrorHandler(err, "Internal Error")
 	}
-	defer client.Disconnect(ctx)
+	defer DisconnectMongoClient(client, ctx)
 
-	coll := client.Database("main").Collection("trainers")
+	coll := client.Database("data").Collection("trainers")
 	var cursor *mongo.Cursor
 	if len(sortOptions) < 1 {
 		cursor, err = coll.Find(ctx, filter)
@@ -60,7 +60,12 @@ func GetTrainersFromDb(ctx context.Context, sortOptions primitive.D, filter prim
 	if err != nil {
 		return nil, utils.ErrorHandler(err, "Internal Error")
 	}
-	defer cursor.Close(ctx)
+
+	defer func() {
+		if err := cursor.Close(ctx); err != nil {
+			utils.ErrorLogger.Printf("Failed to close the cursor: %v", err)
+		}
+	}()
 
 	trainers, err := decodeEntities(ctx, cursor, func() *pb.Trainer { return &pb.Trainer{} }, newModel)
 	if err != nil {
@@ -76,15 +81,12 @@ func newModel() *models.Trainers {
 func UpdateTrainersInDB(ctx context.Context, pbTrainers []*pb.Trainer) ([]*pb.Trainer, error) {
 	client, err := CreateMongoClient()
 	if err != nil {
-		return nil, utils.ErrorHandler(err, "internal error")
+		return nil, utils.ErrorHandler(err, "Internal error")
 	}
-	defer client.Disconnect(ctx)
+	defer DisconnectMongoClient(client, ctx)
 
 	var updatedTrainers []*pb.Trainer
 	for _, trainer := range pbTrainers {
-		if trainer.Id == "" {
-			return nil, utils.ErrorHandler(errors.New("Id cannot be blank"), "Id cannot be blank")
-		}
 
 		modelTrainer := MapPbTrainersToModelTrainers(trainer)
 
@@ -101,12 +103,12 @@ func UpdateTrainersInDB(ctx context.Context, pbTrainers []*pb.Trainer) ([]*pb.Tr
 		var updateDoc bson.M
 		err = bson.Unmarshal(modelDoc, &updateDoc)
 		if err != nil {
-			return nil, utils.ErrorHandler(err, "internal error")
+			return nil, utils.ErrorHandler(err, "Internal error")
 		}
 
 		delete(updateDoc, "_id")
 
-		_, err = client.Database("main").Collection("trainers").UpdateOne(ctx, bson.M{"_id": objId}, bson.M{"$set": updateDoc})
+		_, err = client.Database("data").Collection("trainers").UpdateOne(ctx, bson.M{"_id": objId}, bson.M{"$set": updateDoc})
 		if err != nil {
 			return nil, utils.ErrorHandler(err, fmt.Sprintln("error updating teacher id:", trainer.Id))
 		}

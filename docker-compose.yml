@@ -7,21 +7,33 @@ services:
       - "27017:27017"
     volumes:
       - mongo_data:/data/db
+      - ./mongodb_scripts:/docker-entrypoint-initdb.d:ro
     environment:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: pass
+      MONGO_INITDB_DATABASE: data
+
+  grpcserver_dev:
+    build:
+      context: ./grpc_server
+      dockerfile: Dockerfile
+      target: development
+    depends_on:
+      - mongodb
+    ports:
+      - "50051:50051"
+    command: ["air", "-c", "air.toml"]
 
   grpcserver:
     build:
       context: ./grpc_server
       dockerfile: Dockerfile
+      target: production
     depends_on:
       - mongodb
     ports:
       - "50051:50051"
     command: [ "./grpcserver" ]
 
-
 volumes:
   mongo_data:
-

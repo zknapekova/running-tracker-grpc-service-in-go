@@ -12,3 +12,7 @@ service TrainersService {
 	rpc update_trainers(UpdateTrainersRequest) returns (UpdateTrainersResponse);
 	rpc delete_trainers(DeleteTrainersRequest) returns (DeleteTrainersResponse);
 }
+
+service ActivitiesService {
+	rpc add_activities(AddActivitiesRequest) returns (AddActivitiesResponse);
+}

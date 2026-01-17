@@ -4,6 +4,7 @@ package main;
 option go_package = "/proto/generated_files;running_trackerpb";
 
 import "trainers.proto";
+import "activities.proto";
 
 message SortField {
     string field = 1;
@@ -30,4 +31,8 @@ message UpdateTrainersRequest {
 
 message DeleteTrainersRequest {
 	repeated string ids = 1;
+}
+
+message AddActivitiesRequest {
+	repeated Activity activities = 1;
 }
