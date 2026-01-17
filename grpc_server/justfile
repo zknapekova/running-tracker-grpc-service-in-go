@@ -1,4 +1,6 @@
 golangci_lint_version := "v2.8.0"
+unit_tests_dir := "internals"
+integration_tests_dir := "tests"
 
 # use powershell if running on windows
 # https://just.systems/man/en/configuring-the-shell.html
@@ -11,10 +13,9 @@ lint:
 #run unit tests
 unit_tests:
     go clean -testcache
-    go test -v {{ justfile_directory() }}/...
+    go test -v {{ justfile_directory() }}/{{ unit_tests_dir }}/...
 
 #run integration tests
 e2e_tests:
-    cd ../grpc_client/
     go clean -testcache
-    go test -v {{ justfile_directory() }}/...
+    go test -v {{ justfile_directory() }}/{{ integration_tests_dir }}/...

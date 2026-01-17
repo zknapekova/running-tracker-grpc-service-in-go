@@ -1,7 +1,7 @@
 package client
 
 import (
-	running_trackerpb "grpcclient/proto/generated_files"
+	running_trackerpb "grpcserver/proto/generated_files"
 	"log"
 
 	"golang.org/x/oauth2"
