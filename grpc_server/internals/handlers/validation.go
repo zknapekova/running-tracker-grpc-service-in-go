@@ -39,5 +39,17 @@ func validateUpdateTrainersRequest(request_trainers []*pb.Trainer) error {
 	}
 
 	return nil
+}
 
+func validateAddActivitiesRequest(request_activities []*pb.Activity) error {
+	if len(request_activities) == 0 {
+		return status.Error(codes.InvalidArgument, "No activities provided")
+	}
+
+	for _, activity := range request_activities {
+		if activity.Id != "" {
+			return status.Error(codes.InvalidArgument, "Request contains activity with predefined ID")
+		}
+	}
+	return nil
 }

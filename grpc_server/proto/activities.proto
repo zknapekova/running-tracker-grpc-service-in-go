@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+package main;
+option go_package = "/proto/generated_files;running_trackerpb";
+
+message Activity {
+	string id = 1;
+	string name = 2;
+	int32 duration = 3;
+    int32 distance = 4;
+    int32 pace = 5;
+	string date = 6;
+	string trainers_brand = 7;
+    string trainers_model = 8;
+    string created_at = 9;
+}

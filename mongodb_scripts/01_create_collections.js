@@ -4,7 +4,7 @@ db.createCollection('tracked_activities', {
   validator: {
     $jsonSchema: {
       bsonType: 'object',
-      required: ['name', 'duration', 'date', 'trainers_model_id', 'created_at'],
+      required: ['name', 'duration', 'date', 'created_at'],
       properties: {
         name: {
           bsonType: 'string',
@@ -15,15 +15,11 @@ db.createCollection('tracked_activities', {
           description: "measured in minutes",
         },
         date: {
-          bsonType: "date",
+          bsonType: "string",
           description: "date of the activity",
         },
-        trainers_model_id: {
-          bsonType: 'objectId',
-          description: "reference to the trainers collection"
-        },
         created_at: {
-          bsonType: "date",
+          bsonType: "string",
           description: "date of creation",
         }
       }

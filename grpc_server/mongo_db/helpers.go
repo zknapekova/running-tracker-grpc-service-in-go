@@ -2,11 +2,12 @@ package mongodb
 
 import (
 	"context"
-	"go.mongodb.org/mongo-driver/mongo"
 	"grpcserver/internals/models"
 	"grpcserver/internals/utils"
 	pb "grpcserver/proto/generated_files"
 	"reflect"
+
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func decodeEntities[T any, M any](ctx context.Context, cursor *mongo.Cursor, newEntity func() *T, newModel func() *M) ([]*T, error) {
@@ -77,4 +78,12 @@ func MapModelTrainersToPb(trainers *models.Trainers) *pb.Trainer {
 
 func MapPbTrainersToModelTrainers(pbTrainer *pb.Trainer) *models.Trainers {
 	return MapPbToModel(pbTrainer, func() *models.Trainers { return &models.Trainers{} })
+}
+
+func MapPbActivitiesToModelActivities(pbActivity *pb.Activity) *models.Activities {
+	return MapPbToModel(pbActivity, func() *models.Activities { return &models.Activities{} })
+}
+
+func MapModelActivitiesToPb(activities *models.Activities) *pb.Activity {
+	return MapModelToPb(activities, func() *pb.Activity { return &pb.Activity{} })
 }
