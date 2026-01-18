@@ -8,137 +8,189 @@ import (
 	"google.golang.org/grpc/status"
 )
 
-func TestValidateAddTrainersRequest_MissingBrand(t *testing.T) {
-	// Test that validateAddTrainersRequest function returns Invalid argument error when brand parameter is not specified
-
-	req := []*pb.Trainer{
+func TestValidateAddTrainersRequest(t *testing.T) {
+	tests := []struct {
+		name            string
+		request         []*pb.Trainer
+		expectedMessage string
+	}{
 		{
-			Model:        "test model",
-			PurchaseDate: "1999-12-04",
+			name: "missing brand",
+			request: []*pb.Trainer{
+				{
+					Model:        "test model",
+					PurchaseDate: "1999-12-04",
+				},
+			},
+		},
+		{
+			name: "missing model",
+			request: []*pb.Trainer{
+				{
+					Brand:        "test brand",
+					PurchaseDate: "1999-12-04",
+				},
+			},
+		},
+		{
+			name: "predefined id",
+			request: []*pb.Trainer{
+				{
+					Brand:        "test brand",
+					PurchaseDate: "1999-12-04",
+					Id:           "1000",
+				},
+			},
 		},
 	}
 
-	res := validateAddTrainersRequest(req)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			res := validateAddTrainersRequest(tt.request)
 
-	if res == nil {
-		t.Fatalf("validateAddTrainersRequest returned nil instead of InvalidArgument")
-	}
+			if res == nil {
+				t.Fatalf("expected error but got nil")
+			}
 
-	st, ok := status.FromError(res)
-	if !ok {
-		t.Fatalf("expected gRPC status error, got %v", res)
-	}
+			st, ok := status.FromError(res)
+			if !ok {
+				t.Fatalf("expected gRPC status error, got %v", res)
+			}
 
-	if st.Code() != codes.InvalidArgument {
-		t.Fatalf("expected InvalidArgument, got %v", st.Code())
+			if st.Code() != codes.InvalidArgument {
+				t.Fatalf("expected code InvalidArgument, got %v", st.Code())
+			}
+
+			if tt.expectedMessage != "" && st.Message() != tt.expectedMessage {
+				t.Fatalf("expected message %q, got %q", tt.expectedMessage, st.Message())
+			}
+
+		})
 	}
 }
 
-func TestValidateAddTrainersRequest_MissingModel(t *testing.T) {
-	// Ensure validateAddTrainersRequest returns Invalid argument error code when model parameter is missing
-
-	req := []*pb.Trainer{
+func TestValidateUpdateTrainersRequest(t *testing.T) {
+	tests := []struct {
+		name            string
+		request         []*pb.Trainer
+		expectedMessage string
+	}{
 		{
-			Brand:        "test brand",
-			PurchaseDate: "1999-12-04",
+			name:            "no data",
+			request:         []*pb.Trainer{},
+			expectedMessage: "No trainers provided",
+		},
+		{
+			name: "empty id",
+			request: []*pb.Trainer{
+				{
+					Id: "",
+				},
+			},
+			expectedMessage: "No id specified",
 		},
 	}
 
-	res := validateAddTrainersRequest(req)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			res := validateUpdateTrainersRequest(tt.request)
 
-	if res == nil {
-		t.Fatalf("validateAddTrainersRequest returned nil instead of InvalidArgument")
-	}
+			if res == nil {
+				t.Fatalf("expected error but got nil")
+			}
 
-	st, ok := status.FromError(res)
-	if !ok {
-		t.Fatalf("expected gRPC status error, got %v", res)
-	}
+			st, ok := status.FromError(res)
+			if !ok {
+				t.Fatalf("expected gRPC status error, got %v", res)
+			}
 
-	if st.Code() != codes.InvalidArgument {
-		t.Fatalf("expected InvalidArgument, got %v", st.Code())
+			if st.Code() != codes.InvalidArgument {
+				t.Fatalf("expected code %v, got %v", codes.InvalidArgument, st.Code())
+			}
+
+			if tt.expectedMessage != "" && st.Message() != tt.expectedMessage {
+				t.Fatalf("expected message %q, got %q", tt.expectedMessage, st.Message())
+			}
+		})
 	}
 }
 
-func TestValidateAddTrainersRequest_PredefinedId(t *testing.T) {
-	// Check validateAddTrainersRequest returns Invalid argument error when predefined id is included in the request
-
-	req := []*pb.Trainer{
+func TestValidateAddActivitiesRequest(t *testing.T) {
+	tests := []struct {
+		name            string
+		request         []*pb.Activity
+		expectedError   bool
+		expectedMessage string
+	}{
 		{
-			Brand:        "test brand",
-			PurchaseDate: "1999-12-04",
-			Id:           "1000",
+			name:            "no data",
+			request:         []*pb.Activity{},
+			expectedMessage: "No activities provided",
+		},
+		{
+			name: "predefined id",
+			request: []*pb.Activity{
+				{
+					Id:       "10000",
+					Duration: 122,
+					Date:     "01-01-2026",
+					Name:     "swimming",
+				},
+			},
+			expectedMessage: "Request contains activity with predefined ID",
+		},
+		{
+			name: "missing duration",
+			request: []*pb.Activity{
+				{
+					Date: "01-01-2026",
+					Name: "swimming",
+				},
+			},
+			expectedMessage: "Duration field is missing",
+		},
+		{
+			name: "missing name",
+			request: []*pb.Activity{
+				{
+					Duration: 120,
+					Date:     "01-01-2026",
+				},
+			},
+			expectedMessage: "Name field is missing",
+		},
+		{
+			name: "missing date",
+			request: []*pb.Activity{
+				{
+					Duration: 120,
+					Name:     "hiking",
+				},
+			},
+			expectedMessage: "Date field is missing",
 		},
 	}
 
-	res := validateAddTrainersRequest(req)
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			res := validateAddActivitiesRequest(tt.request)
 
-	if res == nil {
-		t.Fatalf("validateAddTrainersRequest returned nil instead of InvalidArgument")
-	}
+			if res == nil {
+				t.Fatalf("returned nil instead of InvalidArgument")
+			}
 
-	st, ok := status.FromError(res)
-	if !ok {
-		t.Fatalf("expected gRPC status error, got %v", res)
-	}
+			st, ok := status.FromError(res)
+			if !ok {
+				t.Fatalf("expected gRPC status error, got %v", res)
+			}
 
-	if st.Code() != codes.InvalidArgument {
-		t.Fatalf("expected InvalidArgument, got %v", st.Code())
-	}
-}
+			if st.Code() != codes.InvalidArgument {
+				t.Fatalf("expected InvalidArgument, got %v", st.Code())
+			}
 
-func TestValidateUpdateTrainersRequest_NoData(t *testing.T) {
-	// Check validateUpdateTrainersRequest returns Invalid argument error no data is sent
-
-	req := []*pb.Trainer{}
-
-	res := validateUpdateTrainersRequest(req)
-
-	if res == nil {
-		t.Fatalf("validateUpdateTrainersRequest returned nil instead of InvalidArgument")
-	}
-
-	st, ok := status.FromError(res)
-	if !ok {
-		t.Fatalf("expected gRPC status error, got %v", res)
-	}
-
-	if st.Code() != codes.InvalidArgument {
-		t.Fatalf("expected InvalidArgument, got %v", st.Code())
-	}
-
-	expected := "No trainers provided"
-	if st.Message() != expected {
-		t.Fatalf("expected %s message, got %v", expected, st.Message())
-	}
-}
-
-func TestValidateUpdateTrainersRequest_EmptyId(t *testing.T) {
-	// Test that validateUpdateTrainersRequest returns Invalid argument error when id field is empty
-
-	req := []*pb.Trainer{
-		{
-			Id: "",
-		},
-	}
-
-	res := validateUpdateTrainersRequest(req)
-
-	if res == nil {
-		t.Fatalf("validateUpdateTrainersRequest returned nil instead of InvalidArgument")
-	}
-
-	st, ok := status.FromError(res)
-	if !ok {
-		t.Fatalf("expected gRPC status error, got %v", res)
-	}
-
-	if st.Code() != codes.InvalidArgument {
-		t.Fatalf("expected InvalidArgument, got %v", st.Code())
-	}
-
-	expected := "No id specified"
-	if st.Message() != expected {
-		t.Fatalf("expected %s message, got %v", expected, st.Message())
+			if tt.expectedMessage != "" && st.Message() != tt.expectedMessage {
+				t.Fatalf("expected message %q, got %q", tt.expectedMessage, st.Message())
+			}
+		})
 	}
 }

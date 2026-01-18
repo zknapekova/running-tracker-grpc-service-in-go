@@ -50,6 +50,16 @@ func validateAddActivitiesRequest(request_activities []*pb.Activity) error {
 		if activity.Id != "" {
 			return status.Error(codes.InvalidArgument, "Request contains activity with predefined ID")
 		}
+		// check required fields
+		if activity.Name == "" {
+			return status.Error(codes.InvalidArgument, "Name field is missing")
+		}
+		if activity.Duration == 0 {
+			return status.Error(codes.InvalidArgument, "Duration field is missing")
+		}
+		if activity.Date == "" {
+			return status.Error(codes.InvalidArgument, "Date field is missing")
+		}
 	}
 	return nil
 }

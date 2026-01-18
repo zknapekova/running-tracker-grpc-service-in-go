@@ -133,8 +133,8 @@ func TestAddTrainers_ok(t *testing.T) {
 	}
 }
 
-func TestGetTrainers_sort(t *testing.T) {
-	// The test validates that GetTrainers requests returns inserted data and verifies that sorting is perfomed correctly
+func TestGetTrainers_SortDesc(t *testing.T) {
+	// The test validates that GetTrainers requests returns inserted data and verifies that sorting in descending is perfomed correctly
 
 	// db set up
 	test_trainers1 := insertTestTrainer(t, mongo_client, "test_brand1", "model1")
@@ -187,6 +187,64 @@ func TestGetTrainers_sort(t *testing.T) {
 		t.Fatalf("Expected first trainer model to be %s, got '%s'", test_trainers2.Model, res_get.Trainers[0].Model)
 	}
 	if res_get.Trainers[1].Model != test_trainers1.Model {
+		t.Fatalf("Expected second trainer model to be %s, got '%s'", test_trainers1.Model, res_get.Trainers[1].Model)
+	}
+}
+
+func TestGetTrainers_SortAsc(t *testing.T) {
+	// The test validates that GetTrainers requests returns inserted data and verifies that sorting in ascending order is perfomed correctly
+
+	// db set up
+	test_trainers1 := insertTestTrainer(t, mongo_client, "test_brand1", "model1")
+	test_trainers2 := insertTestTrainer(t, mongo_client, "test_brand1", "model2")
+
+	t.Cleanup(func() {
+		filter := bson.M{"_id": test_trainers1.ID}
+		_, err_delete := db.Collection("trainers").DeleteOne(context.Background(), filter)
+		if err_delete != nil {
+			t.Logf("CLEAN_UP: Failed to delete trainer1: %v", err_delete)
+		}
+
+		filter = bson.M{"_id": test_trainers2.ID}
+		_, err_delete = db.Collection("trainers").DeleteOne(context.Background(), filter)
+		if err_delete != nil {
+			t.Logf("CLEAN_UP: Failed to delete trainer2: %v", err_delete)
+		}
+	})
+
+	get_trainers_request := running_trackerpb.GetTrainersRequest{
+		Trainers: &running_trackerpb.Trainer{
+			Brand: "test_brand1",
+		},
+		SortBy: []*running_trackerpb.SortField{
+			{
+				Field: "model",
+				Order: running_trackerpb.Order_ASC,
+			},
+		},
+	}
+
+	// response check
+	res_get, err := new_client.Trainers.GetTrainers(ctx, &get_trainers_request)
+	if err != nil {
+		t.Fatal("Could not get ", err)
+	}
+	log.Println("GET response:", res_get)
+
+	if len(res_get.Trainers) == 0 {
+		t.Fatalf("No trainers returned from GetTrainers")
+	}
+
+	expectedCount := 2
+	if len(res_get.Trainers) != expectedCount {
+		t.Fatalf("Expected %d trainers, got %d", expectedCount, len(res_get.Trainers))
+	}
+
+	// check sorting
+	if res_get.Trainers[0].Model != test_trainers1.Model {
+		t.Fatalf("Expected first trainer model to be %s, got '%s'", test_trainers1.Model, res_get.Trainers[0].Model)
+	}
+	if res_get.Trainers[1].Model != test_trainers2.Model {
 		t.Fatalf("Expected second trainer model to be %s, got '%s'", test_trainers2.Model, res_get.Trainers[1].Model)
 	}
 }
