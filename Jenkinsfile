@@ -24,16 +24,29 @@ pipeline {
                 sh 'docker version'
             }
         }
-        stage('Unit tests') {
-            when {
-                expression { params.ACTION == 'test' }
-            }
+        stage('Build Image') {
             steps {
-                sh(
-                    script: """
+                sh 'docker compose build grpcserver'
+            }
+        }
+        stage('Run Tests') {
+            parallel {
+                stage('Unit Tests') {
+                    steps {
+                        sh '''
                         cd grpc_server
-                        go test -v ./...""",
-                )
+                        go test -v ./...'''
+                    }
+                }
+                stage('Integration Tests') {
+                    steps {
+                        sh '''
+                            docker compose up -d mongodb grpcserver
+                            cd grpc_server
+                            go test -v ./tests/...
+                            docker compose down'''
+                    }
+                }
             }
         }
     }
