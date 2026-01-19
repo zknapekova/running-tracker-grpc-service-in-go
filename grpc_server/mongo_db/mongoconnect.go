@@ -4,7 +4,6 @@ import (
 	"context"
 	"fmt"
 	"grpcserver/internals/utils"
-	"log"
 	"os"
 
 	"github.com/joho/godotenv"
@@ -16,7 +15,7 @@ func CreateMongoClient() (*mongo.Client, error) {
 
 	err := godotenv.Load()
 	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
+		return nil, utils.ErrorHandler(err, "Error loading .env file")
 	}
 
 	username := os.Getenv("MONGODB_USERNAME")
@@ -25,7 +24,7 @@ func CreateMongoClient() (*mongo.Client, error) {
 	port := os.Getenv("MONGODB_PORT")
 
 	if username == "" || password == "" {
-		log.Fatal("MONGODB_USERNAME or MONGODB_PASSWORD not set")
+		return nil, utils.ErrorHandler(err, "MONGODB_USERNAME or MONGODB_PASSWORD not set")
 	}
 
 	ctx := context.Background()
@@ -40,12 +39,12 @@ func CreateMongoClient() (*mongo.Client, error) {
 		return nil, utils.ErrorHandler(err, "Unable to ping to database")
 	}
 
-	utils.InfoLogger.Println("Connected to MongoDB")
+	utils.Logger.Info("Connected to MongoDB")
 	return client, nil
 }
 
 func DisconnectMongoClient(client *mongo.Client, ctx context.Context) {
 	if err := client.Disconnect(ctx); err != nil {
-		utils.ErrorLogger.Println("Failed to disconnect the database")
+		utils.Logger.Error("Failed to disconnect the database")
 	}
 }

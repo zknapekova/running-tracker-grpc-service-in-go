@@ -1,9 +1,6 @@
 package main
 
 import (
-	"github.com/joho/godotenv"
-	"google.golang.org/grpc"
-	"google.golang.org/grpc/credentials"
 	"grpcserver/internals/handlers"
 	"grpcserver/internals/interceptors"
 	"grpcserver/internals/utils"
@@ -11,37 +8,48 @@ import (
 	"log"
 	"net"
 	"os"
+
+	"github.com/joho/godotenv"
+	"go.uber.org/zap"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/credentials"
 )
 
 func main() {
-
-	err := godotenv.Load()
+	logger, err := utils.InitLogger()
 	if err != nil {
-		log.Fatalf("Error loading .env file: %v", err)
+		log.Fatal(err)
+	}
+	defer logger.Sync()
+	utils.Logger = logger
+
+	err = godotenv.Load()
+	if err != nil {
+		utils.Logger.Fatal("Error loading .env file", zap.Error(err))
 	}
 
 	certPath := os.Getenv("CERT_PATH")
 	keyPath := os.Getenv("KEY_PATH")
 
 	if certPath == "" || keyPath == "" {
-		log.Fatal("CERT_PATH or KEY_PATH not set")
+		utils.Logger.Fatal("CERT_PATH or KEY_PATH not set")
 	}
 
 	// start TCP listener as TCP is inherently streamed-oriented, establishes connection before data transfer
 	port := os.Getenv("SERVER_PORT")
 	if port == "" {
-		log.Fatal("SERVER_PORT not set")
+		utils.Logger.Fatal("SERVER_PORT not set")
 	}
 
 	listener, err := net.Listen("tcp", port)
 	if err != nil {
-		log.Fatal("Failed to listen: ", err)
+		utils.Logger.Fatal("Failed to listen", zap.Error(err))
 	}
 
 	// initialize gRPC server instance
 	creds, err := credentials.NewServerTLSFromFile(certPath, keyPath)
 	if err != nil {
-		log.Fatal("Failed to load credentials: ", err)
+		utils.Logger.Fatal("Failed to load credentials", zap.Error(err))
 	}
 	opts := []grpc.ServerOption{
 		grpc.ChainUnaryInterceptor(interceptors.OUAuthentification),
@@ -51,11 +59,11 @@ func main() {
 	pb.RegisterTrainersServiceServer(grpcServer, &handlers.Server{})
 	pb.RegisterActivitiesServiceServer(grpcServer, &handlers.Server{})
 
-	utils.InfoLogger.Println("Server is running on port", port)
+	utils.Logger.Info("Server is running", zap.String("port", port))
 
 	// start the server
 	err = grpcServer.Serve(listener)
 	if err != nil {
-		log.Fatal("Failed to serve: ", err)
+		utils.Logger.Fatal("Failed to start the server", zap.Error(err))
 	}
 }

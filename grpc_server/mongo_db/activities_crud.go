@@ -8,6 +8,7 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.uber.org/zap"
 )
 
 func AddActivitiesToDB(ctx context.Context, request_activities []*pb.Activity) ([]*pb.Activity, error) {
@@ -22,11 +23,10 @@ func AddActivitiesToDB(ctx context.Context, request_activities []*pb.Activity) (
 		newActivities[i] = MapPbActivitiesToModelActivities(pbActivities)
 		newActivities[i].CreatedAt = time.Now().Format("2006-01-02")
 	}
-	utils.InfoLogger.Println(newActivities)
+	utils.Logger.Info("Activities to add", zap.Any("newActivities", newActivities))
 
 	var addedActivities []*pb.Activity
 	for _, activity := range newActivities {
-		utils.DebugLogger.Printf("Inserting activity: %+v\n", activity)
 		result, err := client.Database("data").Collection("tracked_activities").InsertOne(ctx, activity)
 		if err != nil {
 			return nil, utils.ErrorHandler(err, "Error adding value to database")

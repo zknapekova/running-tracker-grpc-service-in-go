@@ -11,6 +11,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.uber.org/zap"
 )
 
 func AddTrainersToDB(ctx context.Context, request_trainers []*pb.Trainer) ([]*pb.Trainer, error) {
@@ -24,11 +25,10 @@ func AddTrainersToDB(ctx context.Context, request_trainers []*pb.Trainer) ([]*pb
 	for i, pbTrainers := range request_trainers {
 		newTrainers[i] = MapPbTrainersToModelTrainers(pbTrainers)
 	}
-	utils.InfoLogger.Println(newTrainers)
+	utils.Logger.Info("Trainers to add", zap.Any("newTrainerss", newTrainers))
 
 	var addedTrainers []*pb.Trainer
 	for _, trainers := range newTrainers {
-		utils.DebugLogger.Printf("Inserting trainers: %+v\n", trainers)
 		result, err := client.Database("data").Collection("trainers").InsertOne(ctx, trainers)
 		if err != nil {
 			return nil, utils.ErrorHandler(err, "Error adding value to database")
@@ -63,7 +63,7 @@ func GetTrainersFromDb(ctx context.Context, sortOptions primitive.D, filter prim
 
 	defer func() {
 		if err := cursor.Close(ctx); err != nil {
-			utils.ErrorLogger.Printf("Failed to close the cursor: %v", err)
+			utils.Logger.Error("Failed to close the cursor", zap.Error(err))
 		}
 	}()
 

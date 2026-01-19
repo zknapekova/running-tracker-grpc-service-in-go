@@ -1,0 +1,16 @@
+{
+  "level": "debug",
+  "encoding": "json",
+  "outputPaths": ["stdout", "app.log"],
+  "errorOutputPaths": ["stderr"],
+   "encoderConfig": {
+      "timeKey": "time",
+      "levelKey": "level",
+      "callerKey": "caller",
+      "stacktraceKey": "stacktrace",
+	    "messageKey": "message",
+	    "levelEncoder": "lowercase",
+      "timeEncoder": "iso8601",
+      "callerEncoder": "short"
+	  }
+}

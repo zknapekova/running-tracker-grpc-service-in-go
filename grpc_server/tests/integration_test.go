@@ -3,6 +3,7 @@ package tests
 import (
 	"context"
 	"grpcserver/client"
+	"grpcserver/internals/utils"
 	"log"
 	"os"
 	"testing"
@@ -11,6 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.uber.org/zap"
 
 	mongodb "grpcserver/mongo_db"
 	running_trackerpb "grpcserver/proto/generated_files"
@@ -38,6 +40,8 @@ func TestMain(m *testing.M) {
 		CertPath:   certPath,
 		OAuthToken: token,
 	}
+
+	utils.Logger = zap.NewNop()
 
 	new_client, err = client.CreateServiceClient(config)
 	if err != nil {

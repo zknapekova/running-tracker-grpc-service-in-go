@@ -1,12 +1,14 @@
 package handlers
 
 import (
-	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/bson/primitive"
 	"grpcserver/internals/utils"
 	pb "grpcserver/proto/generated_files"
 	"reflect"
 	"strings"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.uber.org/zap"
 )
 
 func buildFilter(object interface{}, model interface{}) (bson.M, error) {
@@ -51,7 +53,7 @@ func buildFilter(object interface{}, model interface{}) (bson.M, error) {
 			}
 		}
 	}
-	utils.InfoLogger.Println(filter)
+	utils.Logger.Info("Filter map", zap.Any("filter", filter))
 	return filter, nil
 }
 
@@ -64,6 +66,6 @@ func buildSortOptions(sortFields []*pb.SortField) bson.D {
 		}
 		sortOptions = append(sortOptions, bson.E{Key: sortField.Field, Value: order})
 	}
-	utils.InfoLogger.Println("Sort options", sortOptions)
+	utils.Logger.Info("Sort options", zap.Any("sortOptions", sortOptions))
 	return sortOptions
 }

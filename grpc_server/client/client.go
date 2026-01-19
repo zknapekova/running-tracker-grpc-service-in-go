@@ -1,6 +1,7 @@
 package client
 
 import (
+	"errors"
 	running_trackerpb "grpcserver/proto/generated_files"
 	"log"
 
@@ -24,7 +25,7 @@ type Client struct {
 func CreateServiceClient(cfg Config) (*Client, error) {
 
 	if cfg.CertPath == "" {
-		log.Fatal("CERT_PATH not set")
+		return nil, errors.New("CERT_PATH not set")
 	}
 	token := &oauth2.Token{
 		AccessToken: cfg.OAuthToken,

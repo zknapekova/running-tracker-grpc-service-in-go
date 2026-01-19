@@ -22,6 +22,10 @@ services:
       - mongodb
     ports:
       - "50051:50051"
+    volumes:
+      - type: bind
+        source: ./grpc_server
+        target: /app/
     command: ["air", "-c", "air.toml"]
 
   grpcserver:

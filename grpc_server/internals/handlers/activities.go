@@ -6,6 +6,7 @@ import (
 	mongodb "grpcserver/mongo_db"
 	pb "grpcserver/proto/generated_files"
 
+	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -23,14 +24,13 @@ func (s *Server) AddActivities(ctx context.Context, req *pb.AddActivitiesRequest
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	utils.InfoLogger.Println(addedActivities)
 
 	//extract ids
 	ids := make([]string, 0, len(addedActivities))
 	for _, t := range addedActivities {
 		ids = append(ids, t.Id)
 	}
-	utils.InfoLogger.Println(ids)
+	utils.Logger.Info("Extracted ids", zap.Any("ids", ids))
 
 	return &pb.AddActivitiesResponse{
 		Message: "Activities were added to the database",
