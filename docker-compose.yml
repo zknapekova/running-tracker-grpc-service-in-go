@@ -12,6 +12,12 @@ services:
       MONGO_INITDB_ROOT_USERNAME: admin
       MONGO_INITDB_ROOT_PASSWORD: pass
       MONGO_INITDB_DATABASE: data
+    healthcheck:
+      test: ["CMD", "mongosh", "-u", "admin", "-p", "pass", "--authenticationDatabase", "admin", "--eval", "db.adminCommand('ping')"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
 
   grpcserver_dev:
     build:
@@ -19,9 +25,12 @@ services:
       dockerfile: Dockerfile
       target: development
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
     ports:
       - "50051:50051"
+    env_file:
+      - ./grpc_server/.env
     volumes:
       - type: bind
         source: ./grpc_server
@@ -29,14 +38,18 @@ services:
     command: ["air", "-c", "air.toml"]
 
   grpcserver:
+    image: zknap/running_tracker_app:latest
     build:
       context: ./grpc_server
       dockerfile: Dockerfile
       target: production
     depends_on:
-      - mongodb
+      mongodb:
+        condition: service_healthy
     ports:
       - "50051:50051"
+    env_file:
+      - ./grpc_server/.env
     command: [ "./grpcserver" ]
 
 volumes:
