@@ -364,6 +364,44 @@ func (x *AddActivitiesRequest) GetActivities() []*Activity {
 	return nil
 }
 
+type HealthCheckRequest struct {
+	state         protoimpl.MessageState
+	sizeCache     protoimpl.SizeCache
+	unknownFields protoimpl.UnknownFields
+}
+
+func (x *HealthCheckRequest) Reset() {
+	*x = HealthCheckRequest{}
+	if protoimpl.UnsafeEnabled {
+		mi := &file_requests_proto_msgTypes[6]
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		ms.StoreMessageInfo(mi)
+	}
+}
+
+func (x *HealthCheckRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*HealthCheckRequest) ProtoMessage() {}
+
+func (x *HealthCheckRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_requests_proto_msgTypes[6]
+	if protoimpl.UnsafeEnabled && x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use HealthCheckRequest.ProtoReflect.Descriptor instead.
+func (*HealthCheckRequest) Descriptor() ([]byte, []int) {
+	return file_requests_proto_rawDescGZIP(), []int{6}
+}
+
 var File_requests_proto protoreflect.FileDescriptor
 
 var file_requests_proto_rawDesc = []byte{
@@ -397,12 +435,13 @@ var file_requests_proto_rawDesc = []byte{
 	0x74, 0x12, 0x2e, 0x0a, 0x0a, 0x61, 0x63, 0x74, 0x69, 0x76, 0x69, 0x74, 0x69, 0x65, 0x73, 0x18,
 	0x01, 0x20, 0x03, 0x28, 0x0b, 0x32, 0x0e, 0x2e, 0x6d, 0x61, 0x69, 0x6e, 0x2e, 0x41, 0x63, 0x74,
 	0x69, 0x76, 0x69, 0x74, 0x79, 0x52, 0x0a, 0x61, 0x63, 0x74, 0x69, 0x76, 0x69, 0x74, 0x69, 0x65,
-	0x73, 0x2a, 0x1a, 0x0a, 0x05, 0x4f, 0x72, 0x64, 0x65, 0x72, 0x12, 0x07, 0x0a, 0x03, 0x41, 0x53,
-	0x43, 0x10, 0x00, 0x12, 0x08, 0x0a, 0x04, 0x44, 0x45, 0x53, 0x43, 0x10, 0x01, 0x42, 0x2a, 0x5a,
-	0x28, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x65, 0x6e, 0x65, 0x72, 0x61, 0x74, 0x65,
-	0x64, 0x5f, 0x66, 0x69, 0x6c, 0x65, 0x73, 0x3b, 0x72, 0x75, 0x6e, 0x6e, 0x69, 0x6e, 0x67, 0x5f,
-	0x74, 0x72, 0x61, 0x63, 0x6b, 0x65, 0x72, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f,
-	0x33,
+	0x73, 0x22, 0x14, 0x0a, 0x12, 0x48, 0x65, 0x61, 0x6c, 0x74, 0x68, 0x43, 0x68, 0x65, 0x63, 0x6b,
+	0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x2a, 0x1a, 0x0a, 0x05, 0x4f, 0x72, 0x64, 0x65, 0x72,
+	0x12, 0x07, 0x0a, 0x03, 0x41, 0x53, 0x43, 0x10, 0x00, 0x12, 0x08, 0x0a, 0x04, 0x44, 0x45, 0x53,
+	0x43, 0x10, 0x01, 0x42, 0x2a, 0x5a, 0x28, 0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x65,
+	0x6e, 0x65, 0x72, 0x61, 0x74, 0x65, 0x64, 0x5f, 0x66, 0x69, 0x6c, 0x65, 0x73, 0x3b, 0x72, 0x75,
+	0x6e, 0x6e, 0x69, 0x6e, 0x67, 0x5f, 0x74, 0x72, 0x61, 0x63, 0x6b, 0x65, 0x72, 0x70, 0x62, 0x62,
+	0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var (
@@ -418,7 +457,7 @@ func file_requests_proto_rawDescGZIP() []byte {
 }
 
 var file_requests_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_requests_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
+var file_requests_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_requests_proto_goTypes = []interface{}{
 	(Order)(0),                    // 0: main.Order
 	(*SortField)(nil),             // 1: main.SortField
@@ -427,16 +466,17 @@ var file_requests_proto_goTypes = []interface{}{
 	(*UpdateTrainersRequest)(nil), // 4: main.UpdateTrainersRequest
 	(*DeleteTrainersRequest)(nil), // 5: main.DeleteTrainersRequest
 	(*AddActivitiesRequest)(nil),  // 6: main.AddActivitiesRequest
-	(*Trainer)(nil),               // 7: main.Trainer
-	(*Activity)(nil),              // 8: main.Activity
+	(*HealthCheckRequest)(nil),    // 7: main.HealthCheckRequest
+	(*Trainer)(nil),               // 8: main.Trainer
+	(*Activity)(nil),              // 9: main.Activity
 }
 var file_requests_proto_depIdxs = []int32{
 	0, // 0: main.SortField.order:type_name -> main.Order
-	7, // 1: main.AddTrainersRequest.trainers:type_name -> main.Trainer
-	7, // 2: main.GetTrainersRequest.trainers:type_name -> main.Trainer
+	8, // 1: main.AddTrainersRequest.trainers:type_name -> main.Trainer
+	8, // 2: main.GetTrainersRequest.trainers:type_name -> main.Trainer
 	1, // 3: main.GetTrainersRequest.sort_by:type_name -> main.SortField
-	7, // 4: main.UpdateTrainersRequest.trainers:type_name -> main.Trainer
-	8, // 5: main.AddActivitiesRequest.activities:type_name -> main.Activity
+	8, // 4: main.UpdateTrainersRequest.trainers:type_name -> main.Trainer
+	9, // 5: main.AddActivitiesRequest.activities:type_name -> main.Activity
 	6, // [6:6] is the sub-list for method output_type
 	6, // [6:6] is the sub-list for method input_type
 	6, // [6:6] is the sub-list for extension type_name
@@ -524,6 +564,18 @@ func file_requests_proto_init() {
 				return nil
 			}
 		}
+		file_requests_proto_msgTypes[6].Exporter = func(v interface{}, i int) interface{} {
+			switch v := v.(*HealthCheckRequest); i {
+			case 0:
+				return &v.state
+			case 1:
+				return &v.sizeCache
+			case 2:
+				return &v.unknownFields
+			default:
+				return nil
+			}
+		}
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
@@ -531,7 +583,7 @@ func file_requests_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: file_requests_proto_rawDesc,
 			NumEnums:      1,
-			NumMessages:   6,
+			NumMessages:   7,
 			NumExtensions: 0,
 			NumServices:   0,
 		},

@@ -11,6 +11,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 )
 
+var MongoClient *mongo.Client
+
 func CreateMongoClient() (*mongo.Client, error) {
 
 	err := godotenv.Load()
@@ -40,6 +42,7 @@ func CreateMongoClient() (*mongo.Client, error) {
 	}
 
 	utils.Logger.Info("Connected to MongoDB")
+	MongoClient = client
 	return client, nil
 }
 

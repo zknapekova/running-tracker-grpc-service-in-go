@@ -17,9 +17,10 @@ type Config struct {
 }
 
 type Client struct {
-	Conn       *grpc.ClientConn
-	Trainers   running_trackerpb.TrainersServiceClient
-	Activities running_trackerpb.ActivitiesServiceClient
+	Conn        *grpc.ClientConn
+	Trainers    running_trackerpb.TrainersServiceClient
+	Activities  running_trackerpb.ActivitiesServiceClient
+	HealthCheck running_trackerpb.HealthCheckServiceClient
 }
 
 func CreateServiceClient(cfg Config) (*Client, error) {
@@ -55,10 +56,12 @@ func CreateServiceClient(cfg Config) (*Client, error) {
 	//create new clients
 	trainersClient := running_trackerpb.NewTrainersServiceClient(conn)
 	activitiesClient := running_trackerpb.NewActivitiesServiceClient(conn)
+	healthCheckClient := running_trackerpb.NewHealthCheckServiceClient(conn)
 
 	return &Client{
-		Conn:       conn,
-		Trainers:   trainersClient,
-		Activities: activitiesClient,
+		Conn:        conn,
+		Trainers:    trainersClient,
+		Activities:  activitiesClient,
+		HealthCheck: healthCheckClient,
 	}, nil
 }

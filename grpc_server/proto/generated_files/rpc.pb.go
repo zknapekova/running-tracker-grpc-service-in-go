@@ -50,10 +50,16 @@ var file_rpc_proto_rawDesc = []byte{
 	0x69, 0x65, 0x73, 0x12, 0x1a, 0x2e, 0x6d, 0x61, 0x69, 0x6e, 0x2e, 0x41, 0x64, 0x64, 0x41, 0x63,
 	0x74, 0x69, 0x76, 0x69, 0x74, 0x69, 0x65, 0x73, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a,
 	0x1b, 0x2e, 0x6d, 0x61, 0x69, 0x6e, 0x2e, 0x41, 0x64, 0x64, 0x41, 0x63, 0x74, 0x69, 0x76, 0x69,
-	0x74, 0x69, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x2a, 0x5a, 0x28,
-	0x2f, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x2f, 0x67, 0x65, 0x6e, 0x65, 0x72, 0x61, 0x74, 0x65, 0x64,
-	0x5f, 0x66, 0x69, 0x6c, 0x65, 0x73, 0x3b, 0x72, 0x75, 0x6e, 0x6e, 0x69, 0x6e, 0x67, 0x5f, 0x74,
-	0x72, 0x61, 0x63, 0x6b, 0x65, 0x72, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
+	0x74, 0x69, 0x65, 0x73, 0x52, 0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x32, 0x59, 0x0a, 0x12,
+	0x48, 0x65, 0x61, 0x6c, 0x74, 0x68, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x53, 0x65, 0x72, 0x76, 0x69,
+	0x63, 0x65, 0x12, 0x43, 0x0a, 0x0c, 0x68, 0x65, 0x61, 0x6c, 0x74, 0x68, 0x5f, 0x63, 0x68, 0x65,
+	0x63, 0x6b, 0x12, 0x18, 0x2e, 0x6d, 0x61, 0x69, 0x6e, 0x2e, 0x48, 0x65, 0x61, 0x6c, 0x74, 0x68,
+	0x43, 0x68, 0x65, 0x63, 0x6b, 0x52, 0x65, 0x71, 0x75, 0x65, 0x73, 0x74, 0x1a, 0x19, 0x2e, 0x6d,
+	0x61, 0x69, 0x6e, 0x2e, 0x48, 0x65, 0x61, 0x6c, 0x74, 0x68, 0x43, 0x68, 0x65, 0x63, 0x6b, 0x52,
+	0x65, 0x73, 0x70, 0x6f, 0x6e, 0x73, 0x65, 0x42, 0x2a, 0x5a, 0x28, 0x2f, 0x70, 0x72, 0x6f, 0x74,
+	0x6f, 0x2f, 0x67, 0x65, 0x6e, 0x65, 0x72, 0x61, 0x74, 0x65, 0x64, 0x5f, 0x66, 0x69, 0x6c, 0x65,
+	0x73, 0x3b, 0x72, 0x75, 0x6e, 0x6e, 0x69, 0x6e, 0x67, 0x5f, 0x74, 0x72, 0x61, 0x63, 0x6b, 0x65,
+	0x72, 0x70, 0x62, 0x62, 0x06, 0x70, 0x72, 0x6f, 0x74, 0x6f, 0x33,
 }
 
 var file_rpc_proto_goTypes = []interface{}{
@@ -62,28 +68,32 @@ var file_rpc_proto_goTypes = []interface{}{
 	(*UpdateTrainersRequest)(nil),  // 2: main.UpdateTrainersRequest
 	(*DeleteTrainersRequest)(nil),  // 3: main.DeleteTrainersRequest
 	(*AddActivitiesRequest)(nil),   // 4: main.AddActivitiesRequest
-	(*AddTrainersResponse)(nil),    // 5: main.AddTrainersResponse
-	(*GetTrainersResponse)(nil),    // 6: main.GetTrainersResponse
-	(*UpdateTrainersResponse)(nil), // 7: main.UpdateTrainersResponse
-	(*DeleteTrainersResponse)(nil), // 8: main.DeleteTrainersResponse
-	(*AddActivitiesResponse)(nil),  // 9: main.AddActivitiesResponse
+	(*HealthCheckRequest)(nil),     // 5: main.HealthCheckRequest
+	(*AddTrainersResponse)(nil),    // 6: main.AddTrainersResponse
+	(*GetTrainersResponse)(nil),    // 7: main.GetTrainersResponse
+	(*UpdateTrainersResponse)(nil), // 8: main.UpdateTrainersResponse
+	(*DeleteTrainersResponse)(nil), // 9: main.DeleteTrainersResponse
+	(*AddActivitiesResponse)(nil),  // 10: main.AddActivitiesResponse
+	(*HealthCheckResponse)(nil),    // 11: main.HealthCheckResponse
 }
 var file_rpc_proto_depIdxs = []int32{
-	0, // 0: main.TrainersService.add_trainers:input_type -> main.AddTrainersRequest
-	1, // 1: main.TrainersService.get_trainers:input_type -> main.GetTrainersRequest
-	2, // 2: main.TrainersService.update_trainers:input_type -> main.UpdateTrainersRequest
-	3, // 3: main.TrainersService.delete_trainers:input_type -> main.DeleteTrainersRequest
-	4, // 4: main.ActivitiesService.add_activities:input_type -> main.AddActivitiesRequest
-	5, // 5: main.TrainersService.add_trainers:output_type -> main.AddTrainersResponse
-	6, // 6: main.TrainersService.get_trainers:output_type -> main.GetTrainersResponse
-	7, // 7: main.TrainersService.update_trainers:output_type -> main.UpdateTrainersResponse
-	8, // 8: main.TrainersService.delete_trainers:output_type -> main.DeleteTrainersResponse
-	9, // 9: main.ActivitiesService.add_activities:output_type -> main.AddActivitiesResponse
-	5, // [5:10] is the sub-list for method output_type
-	0, // [0:5] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	0,  // 0: main.TrainersService.add_trainers:input_type -> main.AddTrainersRequest
+	1,  // 1: main.TrainersService.get_trainers:input_type -> main.GetTrainersRequest
+	2,  // 2: main.TrainersService.update_trainers:input_type -> main.UpdateTrainersRequest
+	3,  // 3: main.TrainersService.delete_trainers:input_type -> main.DeleteTrainersRequest
+	4,  // 4: main.ActivitiesService.add_activities:input_type -> main.AddActivitiesRequest
+	5,  // 5: main.HealthCheckService.health_check:input_type -> main.HealthCheckRequest
+	6,  // 6: main.TrainersService.add_trainers:output_type -> main.AddTrainersResponse
+	7,  // 7: main.TrainersService.get_trainers:output_type -> main.GetTrainersResponse
+	8,  // 8: main.TrainersService.update_trainers:output_type -> main.UpdateTrainersResponse
+	9,  // 9: main.TrainersService.delete_trainers:output_type -> main.DeleteTrainersResponse
+	10, // 10: main.ActivitiesService.add_activities:output_type -> main.AddActivitiesResponse
+	11, // 11: main.HealthCheckService.health_check:output_type -> main.HealthCheckResponse
+	6,  // [6:12] is the sub-list for method output_type
+	0,  // [0:6] is the sub-list for method input_type
+	0,  // [0:0] is the sub-list for extension type_name
+	0,  // [0:0] is the sub-list for extension extendee
+	0,  // [0:0] is the sub-list for field type_name
 }
 
 func init() { file_rpc_proto_init() }
@@ -101,7 +111,7 @@ func file_rpc_proto_init() {
 			NumEnums:      0,
 			NumMessages:   0,
 			NumExtensions: 0,
-			NumServices:   2,
+			NumServices:   3,
 		},
 		GoTypes:           file_rpc_proto_goTypes,
 		DependencyIndexes: file_rpc_proto_depIdxs,

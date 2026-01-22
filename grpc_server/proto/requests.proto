@@ -36,3 +36,6 @@ message DeleteTrainersRequest {
 message AddActivitiesRequest {
 	repeated Activity activities = 1;
 }
+
+message HealthCheckRequest {
+}

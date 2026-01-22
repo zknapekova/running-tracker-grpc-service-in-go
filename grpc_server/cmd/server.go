@@ -1,9 +1,11 @@
 package main
 
 import (
+	"context"
 	"grpcserver/internals/handlers"
 	"grpcserver/internals/interceptors"
 	"grpcserver/internals/utils"
+	mongodb "grpcserver/mongo_db"
 	pb "grpcserver/proto/generated_files"
 	"log"
 	"net"
@@ -46,6 +48,12 @@ func main() {
 		utils.Logger.Fatal("Failed to listen", zap.Error(err))
 	}
 
+	client, err := mongodb.CreateMongoClient()
+	if err != nil {
+		utils.Logger.Fatal("Failed to connect to MongoDB", zap.Error(err))
+	}
+	defer mongodb.DisconnectMongoClient(client, context.Background())
+
 	// initialize gRPC server instance
 	creds, err := credentials.NewServerTLSFromFile(certPath, keyPath)
 	if err != nil {
@@ -58,6 +66,7 @@ func main() {
 	grpcServer := grpc.NewServer(opts...)
 	pb.RegisterTrainersServiceServer(grpcServer, &handlers.Server{})
 	pb.RegisterActivitiesServiceServer(grpcServer, &handlers.Server{})
+	pb.RegisterHealthCheckServiceServer(grpcServer, &handlers.Server{})
 
 	utils.Logger.Info("Server is running", zap.String("port", port))
 

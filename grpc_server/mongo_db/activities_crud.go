@@ -12,11 +12,7 @@ import (
 )
 
 func AddActivitiesToDB(ctx context.Context, request_activities []*pb.Activity) ([]*pb.Activity, error) {
-	client, err := CreateMongoClient()
-	if err != nil {
-		return nil, utils.ErrorHandler(err, "internal error")
-	}
-	defer DisconnectMongoClient(client, ctx)
+	client := MongoClient
 
 	newActivities := make([]*models.Activities, len(request_activities))
 	for i, pbActivities := range request_activities {

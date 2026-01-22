@@ -87,12 +87,7 @@ func (s *Server) DeleteTrainers(ctx context.Context, req *pb.DeleteTrainersReque
 		return nil, utils.ErrorHandler(nil, "No trainer IDs provided")
 	}
 
-	client, err := mongodb.CreateMongoClient()
-	if err != nil {
-		return nil, utils.ErrorHandler(err, "internal error")
-	}
-
-	defer mongodb.DisconnectMongoClient(client, ctx)
+	client := mongodb.MongoClient
 
 	objectIds := make([]primitive.ObjectID, len(ids))
 	for _, id := range ids {

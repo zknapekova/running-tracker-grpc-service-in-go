@@ -16,3 +16,7 @@ service TrainersService {
 service ActivitiesService {
 	rpc add_activities(AddActivitiesRequest) returns (AddActivitiesResponse);
 }
+
+service HealthCheckService {
+	rpc health_check(HealthCheckRequest) returns (HealthCheckResponse);
+}

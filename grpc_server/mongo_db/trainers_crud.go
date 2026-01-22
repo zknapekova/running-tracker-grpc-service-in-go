@@ -15,11 +15,7 @@ import (
 )
 
 func AddTrainersToDB(ctx context.Context, request_trainers []*pb.Trainer) ([]*pb.Trainer, error) {
-	client, err := CreateMongoClient()
-	if err != nil {
-		return nil, utils.ErrorHandler(err, "internal error")
-	}
-	defer DisconnectMongoClient(client, ctx)
+	client := MongoClient
 
 	newTrainers := make([]*models.Trainers, len(request_trainers))
 	for i, pbTrainers := range request_trainers {
@@ -44,14 +40,11 @@ func AddTrainersToDB(ctx context.Context, request_trainers []*pb.Trainer) ([]*pb
 }
 
 func GetTrainersFromDb(ctx context.Context, sortOptions primitive.D, filter primitive.M) ([]*pb.Trainer, error) {
-	client, err := CreateMongoClient()
-	if err != nil {
-		return nil, utils.ErrorHandler(err, "Internal Error")
-	}
-	defer DisconnectMongoClient(client, ctx)
-
+	client := MongoClient
 	coll := client.Database("data").Collection("trainers")
+
 	var cursor *mongo.Cursor
+	var err error
 	if len(sortOptions) < 1 {
 		cursor, err = coll.Find(ctx, filter)
 	} else {
@@ -79,11 +72,7 @@ func newModel() *models.Trainers {
 }
 
 func UpdateTrainersInDB(ctx context.Context, pbTrainers []*pb.Trainer) ([]*pb.Trainer, error) {
-	client, err := CreateMongoClient()
-	if err != nil {
-		return nil, utils.ErrorHandler(err, "Internal error")
-	}
-	defer DisconnectMongoClient(client, ctx)
+	client := MongoClient
 
 	var updatedTrainers []*pb.Trainer
 	for _, trainer := range pbTrainers {

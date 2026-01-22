@@ -421,3 +421,20 @@ func TestAddActivities_ok(t *testing.T) {
 		t.Fatalf("Number of returned IDs does not match number of added activities")
 	}
 }
+
+func TestHealthChech_ServingStatus(t *testing.T) {
+	// The test sends healthcheck request and verifies that SERVING status is returned
+
+	request := running_trackerpb.HealthCheckRequest{}
+
+	res, err := new_client.HealthCheck.HealthCheck(ctx, &request)
+	if err != nil {
+		t.Fatal("HealthCheck failed ", err)
+	}
+
+	expected_status := running_trackerpb.HealthCheckResponse_SERVING
+	status := res.Status
+	if status != expected_status {
+		t.Fatalf("expected status %v, got %v", expected_status, status)
+	}
+}
