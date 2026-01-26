@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"context"
+	"grpcserver/internals/models"
 	"grpcserver/internals/utils"
 	mongodb "grpcserver/mongo_db"
 	pb "grpcserver/proto/generated_files"
@@ -36,4 +37,23 @@ func (s *Server) AddActivities(ctx context.Context, req *pb.AddActivitiesRequest
 		Message: "Activities were added to the database",
 		Ids:     ids,
 	}, nil
+}
+
+func (s *Server) GetActivities(ctx context.Context, req *pb.GetActivitiesRequest) (*pb.GetActivitiesResponse, error) {
+	activity_filter := req.GetActivityFilter()
+	if activity_filter == nil {
+		return nil, status.Error(codes.InvalidArgument, "No filter specified")
+	}
+
+	filter, err := buildFilter(activity_filter, &models.Activities{})
+	if err != nil {
+		return nil, status.Error(codes.InvalidArgument, err.Error())
+	}
+	sortOptions := buildSortOptions(req.GetSortBy())
+
+	activities, err := mongodb.GetActivitiessFromDb(ctx, sortOptions, filter)
+	if err != nil {
+		return nil, status.Error(codes.Internal, err.Error())
+	}
+	return &pb.GetActivitiesResponse{Activities: activities}, nil
 }

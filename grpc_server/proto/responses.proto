@@ -4,6 +4,7 @@ package main;
 option go_package = "/proto/generated_files;running_trackerpb";
 
 import "trainers.proto";
+import "activities.proto";
 
 message AddTrainersResponse {
   string message = 1;
@@ -28,6 +29,11 @@ message DeleteTrainersResponse {
 message AddActivitiesResponse {
   string message = 1;
   repeated string ids = 2;
+}
+
+message GetActivitiesResponse {
+  string message = 1;
+  repeated Activity activities = 2;
 }
 
 message HealthCheckResponse {

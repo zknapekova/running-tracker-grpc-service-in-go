@@ -215,6 +215,7 @@ var TrainersService_ServiceDesc = grpc.ServiceDesc{
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ActivitiesServiceClient interface {
 	AddActivities(ctx context.Context, in *AddActivitiesRequest, opts ...grpc.CallOption) (*AddActivitiesResponse, error)
+	GetActivities(ctx context.Context, in *GetActivitiesRequest, opts ...grpc.CallOption) (*GetActivitiesResponse, error)
 }
 
 type activitiesServiceClient struct {
@@ -234,11 +235,21 @@ func (c *activitiesServiceClient) AddActivities(ctx context.Context, in *AddActi
 	return out, nil
 }
 
+func (c *activitiesServiceClient) GetActivities(ctx context.Context, in *GetActivitiesRequest, opts ...grpc.CallOption) (*GetActivitiesResponse, error) {
+	out := new(GetActivitiesResponse)
+	err := c.cc.Invoke(ctx, "/main.ActivitiesService/get_activities", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ActivitiesServiceServer is the server API for ActivitiesService service.
 // All implementations should embed UnimplementedActivitiesServiceServer
 // for forward compatibility
 type ActivitiesServiceServer interface {
 	AddActivities(context.Context, *AddActivitiesRequest) (*AddActivitiesResponse, error)
+	GetActivities(context.Context, *GetActivitiesRequest) (*GetActivitiesResponse, error)
 }
 
 // UnimplementedActivitiesServiceServer should be embedded to have forward compatible implementations.
@@ -247,6 +258,9 @@ type UnimplementedActivitiesServiceServer struct {
 
 func (UnimplementedActivitiesServiceServer) AddActivities(context.Context, *AddActivitiesRequest) (*AddActivitiesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddActivities not implemented")
+}
+func (UnimplementedActivitiesServiceServer) GetActivities(context.Context, *GetActivitiesRequest) (*GetActivitiesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetActivities not implemented")
 }
 
 // UnsafeActivitiesServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -278,6 +292,24 @@ func _ActivitiesService_AddActivities_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ActivitiesService_GetActivities_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetActivitiesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ActivitiesServiceServer).GetActivities(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/main.ActivitiesService/get_activities",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ActivitiesServiceServer).GetActivities(ctx, req.(*GetActivitiesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ActivitiesService_ServiceDesc is the grpc.ServiceDesc for ActivitiesService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -288,6 +320,10 @@ var ActivitiesService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "add_activities",
 			Handler:    _ActivitiesService_AddActivities_Handler,
+		},
+		{
+			MethodName: "get_activities",
+			Handler:    _ActivitiesService_GetActivities_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

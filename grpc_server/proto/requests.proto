@@ -37,5 +37,10 @@ message AddActivitiesRequest {
 	repeated Activity activities = 1;
 }
 
+message GetActivitiesRequest {
+	Activity activity_filter = 1;
+	repeated SortField sort_by = 2;
+}
+
 message HealthCheckRequest {
 }

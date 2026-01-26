@@ -8,6 +8,8 @@ import (
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 	"go.uber.org/zap"
 )
 
@@ -35,4 +37,32 @@ func AddActivitiesToDB(ctx context.Context, request_activities []*pb.Activity) (
 		addedActivities = append(addedActivities, pbActivity)
 	}
 	return addedActivities, nil
+}
+
+func GetActivitiessFromDb(ctx context.Context, sortOptions primitive.D, filter primitive.M) ([]*pb.Activity, error) {
+	client := MongoClient
+	coll := client.Database("data").Collection("tracked_activities")
+
+	var cursor *mongo.Cursor
+	var err error
+	if len(sortOptions) < 1 {
+		cursor, err = coll.Find(ctx, filter)
+	} else {
+		cursor, err = coll.Find(ctx, filter, options.Find().SetSort(sortOptions))
+	}
+	if err != nil {
+		return nil, utils.ErrorHandler(err, "Internal Error")
+	}
+
+	defer func() {
+		if err := cursor.Close(ctx); err != nil {
+			utils.Logger.Error("Failed to close the cursor", zap.Error(err))
+		}
+	}()
+
+	activities, err := decodeEntities(ctx, cursor, func() *pb.Activity { return &pb.Activity{} }, newModel)
+	if err != nil {
+		return nil, err
+	}
+	return activities, nil
 }
