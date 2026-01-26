@@ -24,16 +24,45 @@ pipeline {
                 sh 'docker version'
             }
         }
-        stage('Unit tests') {
+        stage('Build Image') {
+            steps {
+                sh 'docker compose build grpcserver'
+                sh 'docker images'
+            }
+        }
+        stage('Run Tests') {
+            parallel {
+                stage('Unit Tests') {
+                    steps {
+                        sh '''
+                        cd grpc_server
+                        go test -v ./...'''
+                    }
+                }
+                stage('Integration Tests') {
+                    steps {
+                        sh '''
+                            docker compose up -d --remove-orphans mongodb grpcserver
+                            cd grpc_server
+                            go test -v ./tests/...
+                            docker compose down -v'''
+                    }
+                }
+            }
+        }
+        stage ('Push the image') {
             when {
-                expression { params.ACTION == 'test' }
+                expression { params.ACTION == 'release' }
             }
             steps {
-                sh(
-                    script: """
-                        cd grpc_server
-                        go test -v ./...""",
-                )
+                withCredentials([usernamePassword(
+                    credentialsId: 'dockerHub',
+                    usernameVariable: 'DOCKER_USER',
+                    passwordVariable: 'DOCKER_PASS'
+                )]) {
+                   sh 'docker login -u "$DOCKER_USER" -p "$DOCKER_PASS"'
+                   sh 'docker compose push grpcserver'
+                }
             }
         }
     }

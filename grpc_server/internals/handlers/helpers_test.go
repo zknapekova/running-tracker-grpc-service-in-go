@@ -1,12 +1,22 @@
 package handlers
 
 import (
-	"go.mongodb.org/mongo-driver/bson"
 	"grpcserver/internals/models"
+	"grpcserver/internals/utils"
 	pb "grpcserver/proto/generated_files"
+	"os"
 	"reflect"
 	"testing"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.uber.org/zap"
 )
+
+func TestMain(m *testing.M) {
+	utils.Logger = zap.NewNop()
+
+	os.Exit(m.Run())
+}
 
 func TestBuildSortOptions_Empty(t *testing.T) {
 	// Check that buildSortOptions returns an empty document if no sort option is specified

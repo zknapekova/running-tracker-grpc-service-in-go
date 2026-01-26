@@ -10,6 +10,7 @@ import (
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.uber.org/zap"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )
@@ -27,14 +28,14 @@ func (s *Server) AddTrainers(ctx context.Context, req *pb.AddTrainersRequest) (*
 	if err != nil {
 		return nil, status.Error(codes.Internal, err.Error())
 	}
-	utils.InfoLogger.Println(addedTrainers)
+	utils.Logger.Info("Added trainers", zap.Any("addedTrainers", addedTrainers))
 
 	//extract ids
 	ids := make([]string, 0, len(addedTrainers))
 	for _, t := range addedTrainers {
 		ids = append(ids, t.Id)
 	}
-	utils.InfoLogger.Println(ids)
+	utils.Logger.Info("Extracted ids", zap.Any("ids", ids))
 
 	return &pb.AddTrainersResponse{
 		Message: "Trainers were added to database",
@@ -72,7 +73,7 @@ func (s *Server) UpdateTrainers(ctx context.Context, req *pb.UpdateTrainersReque
 	for _, t := range updatedTrainers {
 		ids = append(ids, t.Id)
 	}
-	utils.InfoLogger.Println(ids)
+	utils.Logger.Info("Extracted ids", zap.Any("ids", ids))
 
 	return &pb.UpdateTrainersResponse{
 		Ids: ids,
@@ -86,12 +87,7 @@ func (s *Server) DeleteTrainers(ctx context.Context, req *pb.DeleteTrainersReque
 		return nil, utils.ErrorHandler(nil, "No trainer IDs provided")
 	}
 
-	client, err := mongodb.CreateMongoClient()
-	if err != nil {
-		return nil, utils.ErrorHandler(err, "internal error")
-	}
-
-	defer mongodb.DisconnectMongoClient(client, ctx)
+	client := mongodb.MongoClient
 
 	objectIds := make([]primitive.ObjectID, len(ids))
 	for _, id := range ids {
@@ -118,7 +114,7 @@ func (s *Server) DeleteTrainers(ctx context.Context, req *pb.DeleteTrainersReque
 
 	len_foundIds := len(foundIds)
 
-	utils.InfoLogger.Println("foundIds count: ", len_foundIds)
+	utils.Logger.Info("Number of found ids", zap.Int("ids", len_foundIds))
 	if len_foundIds == 0 {
 		return nil, utils.ErrorHandler(err, "No trainers to delete were found in DB")
 	}
@@ -128,7 +124,7 @@ func (s *Server) DeleteTrainers(ctx context.Context, req *pb.DeleteTrainersReque
 		return nil, utils.ErrorHandler(err, "internal error")
 	}
 
-	utils.InfoLogger.Println("deletedCount: ", result.DeletedCount)
+	utils.Logger.Info("Number of deleted docs", zap.Any("deletedCount", result.DeletedCount))
 	if result.DeletedCount == 0 {
 		return nil, utils.ErrorHandler(err, fmt.Sprintf("DatabaseError: %d trainers found, but no trainers were deleted", len_foundIds))
 	}

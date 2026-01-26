@@ -215,6 +215,7 @@ var TrainersService_ServiceDesc = grpc.ServiceDesc{
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type ActivitiesServiceClient interface {
 	AddActivities(ctx context.Context, in *AddActivitiesRequest, opts ...grpc.CallOption) (*AddActivitiesResponse, error)
+	GetActivities(ctx context.Context, in *GetActivitiesRequest, opts ...grpc.CallOption) (*GetActivitiesResponse, error)
 }
 
 type activitiesServiceClient struct {
@@ -234,11 +235,21 @@ func (c *activitiesServiceClient) AddActivities(ctx context.Context, in *AddActi
 	return out, nil
 }
 
+func (c *activitiesServiceClient) GetActivities(ctx context.Context, in *GetActivitiesRequest, opts ...grpc.CallOption) (*GetActivitiesResponse, error) {
+	out := new(GetActivitiesResponse)
+	err := c.cc.Invoke(ctx, "/main.ActivitiesService/get_activities", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ActivitiesServiceServer is the server API for ActivitiesService service.
 // All implementations should embed UnimplementedActivitiesServiceServer
 // for forward compatibility
 type ActivitiesServiceServer interface {
 	AddActivities(context.Context, *AddActivitiesRequest) (*AddActivitiesResponse, error)
+	GetActivities(context.Context, *GetActivitiesRequest) (*GetActivitiesResponse, error)
 }
 
 // UnimplementedActivitiesServiceServer should be embedded to have forward compatible implementations.
@@ -247,6 +258,9 @@ type UnimplementedActivitiesServiceServer struct {
 
 func (UnimplementedActivitiesServiceServer) AddActivities(context.Context, *AddActivitiesRequest) (*AddActivitiesResponse, error) {
 	return nil, status.Errorf(codes.Unimplemented, "method AddActivities not implemented")
+}
+func (UnimplementedActivitiesServiceServer) GetActivities(context.Context, *GetActivitiesRequest) (*GetActivitiesResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method GetActivities not implemented")
 }
 
 // UnsafeActivitiesServiceServer may be embedded to opt out of forward compatibility for this service.
@@ -278,6 +292,24 @@ func _ActivitiesService_AddActivities_Handler(srv interface{}, ctx context.Conte
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ActivitiesService_GetActivities_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetActivitiesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ActivitiesServiceServer).GetActivities(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/main.ActivitiesService/get_activities",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ActivitiesServiceServer).GetActivities(ctx, req.(*GetActivitiesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ActivitiesService_ServiceDesc is the grpc.ServiceDesc for ActivitiesService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -288,6 +320,94 @@ var ActivitiesService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "add_activities",
 			Handler:    _ActivitiesService_AddActivities_Handler,
+		},
+		{
+			MethodName: "get_activities",
+			Handler:    _ActivitiesService_GetActivities_Handler,
+		},
+	},
+	Streams:  []grpc.StreamDesc{},
+	Metadata: "rpc.proto",
+}
+
+// HealthCheckServiceClient is the client API for HealthCheckService service.
+//
+// For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
+type HealthCheckServiceClient interface {
+	HealthCheck(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckResponse, error)
+}
+
+type healthCheckServiceClient struct {
+	cc grpc.ClientConnInterface
+}
+
+func NewHealthCheckServiceClient(cc grpc.ClientConnInterface) HealthCheckServiceClient {
+	return &healthCheckServiceClient{cc}
+}
+
+func (c *healthCheckServiceClient) HealthCheck(ctx context.Context, in *HealthCheckRequest, opts ...grpc.CallOption) (*HealthCheckResponse, error) {
+	out := new(HealthCheckResponse)
+	err := c.cc.Invoke(ctx, "/main.HealthCheckService/health_check", in, out, opts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+// HealthCheckServiceServer is the server API for HealthCheckService service.
+// All implementations should embed UnimplementedHealthCheckServiceServer
+// for forward compatibility
+type HealthCheckServiceServer interface {
+	HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error)
+}
+
+// UnimplementedHealthCheckServiceServer should be embedded to have forward compatible implementations.
+type UnimplementedHealthCheckServiceServer struct {
+}
+
+func (UnimplementedHealthCheckServiceServer) HealthCheck(context.Context, *HealthCheckRequest) (*HealthCheckResponse, error) {
+	return nil, status.Errorf(codes.Unimplemented, "method HealthCheck not implemented")
+}
+
+// UnsafeHealthCheckServiceServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to HealthCheckServiceServer will
+// result in compilation errors.
+type UnsafeHealthCheckServiceServer interface {
+	mustEmbedUnimplementedHealthCheckServiceServer()
+}
+
+func RegisterHealthCheckServiceServer(s grpc.ServiceRegistrar, srv HealthCheckServiceServer) {
+	s.RegisterService(&HealthCheckService_ServiceDesc, srv)
+}
+
+func _HealthCheckService_HealthCheck_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(HealthCheckRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(HealthCheckServiceServer).HealthCheck(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: "/main.HealthCheckService/health_check",
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(HealthCheckServiceServer).HealthCheck(ctx, req.(*HealthCheckRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+// HealthCheckService_ServiceDesc is the grpc.ServiceDesc for HealthCheckService service.
+// It's only intended for direct use with grpc.RegisterService,
+// and not to be introspected or modified (even as a copy)
+var HealthCheckService_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "main.HealthCheckService",
+	HandlerType: (*HealthCheckServiceServer)(nil),
+	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "health_check",
+			Handler:    _HealthCheckService_HealthCheck_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

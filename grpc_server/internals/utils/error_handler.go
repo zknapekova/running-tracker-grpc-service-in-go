@@ -2,12 +2,15 @@ package utils
 
 import (
 	"fmt"
+
+	"go.uber.org/zap"
 )
 
 func ErrorHandler(err error, message string) error {
 	if err != nil {
-		ErrorLogger.Printf("%v\n", err)
+		Logger.Error(message, zap.Error(err))
+	} else {
+		Logger.Error(message)
 	}
-	ErrorLogger.Println(message)
 	return fmt.Errorf("%s", message)
 }

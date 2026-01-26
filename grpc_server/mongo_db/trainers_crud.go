@@ -11,24 +11,20 @@ import (
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+	"go.uber.org/zap"
 )
 
 func AddTrainersToDB(ctx context.Context, request_trainers []*pb.Trainer) ([]*pb.Trainer, error) {
-	client, err := CreateMongoClient()
-	if err != nil {
-		return nil, utils.ErrorHandler(err, "internal error")
-	}
-	defer DisconnectMongoClient(client, ctx)
+	client := MongoClient
 
 	newTrainers := make([]*models.Trainers, len(request_trainers))
 	for i, pbTrainers := range request_trainers {
 		newTrainers[i] = MapPbTrainersToModelTrainers(pbTrainers)
 	}
-	utils.InfoLogger.Println(newTrainers)
+	utils.Logger.Info("Trainers to add", zap.Any("newTrainerss", newTrainers))
 
 	var addedTrainers []*pb.Trainer
 	for _, trainers := range newTrainers {
-		utils.DebugLogger.Printf("Inserting trainers: %+v\n", trainers)
 		result, err := client.Database("data").Collection("trainers").InsertOne(ctx, trainers)
 		if err != nil {
 			return nil, utils.ErrorHandler(err, "Error adding value to database")
@@ -44,14 +40,11 @@ func AddTrainersToDB(ctx context.Context, request_trainers []*pb.Trainer) ([]*pb
 }
 
 func GetTrainersFromDb(ctx context.Context, sortOptions primitive.D, filter primitive.M) ([]*pb.Trainer, error) {
-	client, err := CreateMongoClient()
-	if err != nil {
-		return nil, utils.ErrorHandler(err, "Internal Error")
-	}
-	defer DisconnectMongoClient(client, ctx)
-
+	client := MongoClient
 	coll := client.Database("data").Collection("trainers")
+
 	var cursor *mongo.Cursor
+	var err error
 	if len(sortOptions) < 1 {
 		cursor, err = coll.Find(ctx, filter)
 	} else {
@@ -63,7 +56,7 @@ func GetTrainersFromDb(ctx context.Context, sortOptions primitive.D, filter prim
 
 	defer func() {
 		if err := cursor.Close(ctx); err != nil {
-			utils.ErrorLogger.Printf("Failed to close the cursor: %v", err)
+			utils.Logger.Error("Failed to close the cursor", zap.Error(err))
 		}
 	}()
 
@@ -79,11 +72,7 @@ func newModel() *models.Trainers {
 }
 
 func UpdateTrainersInDB(ctx context.Context, pbTrainers []*pb.Trainer) ([]*pb.Trainer, error) {
-	client, err := CreateMongoClient()
-	if err != nil {
-		return nil, utils.ErrorHandler(err, "Internal error")
-	}
-	defer DisconnectMongoClient(client, ctx)
+	client := MongoClient
 
 	var updatedTrainers []*pb.Trainer
 	for _, trainer := range pbTrainers {

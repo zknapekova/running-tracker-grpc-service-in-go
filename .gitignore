@@ -1,2 +1,4 @@
 grpc_server/tmp/
 notes.txt
+grpc_server/app.log
+grpc_server/tests/test.log

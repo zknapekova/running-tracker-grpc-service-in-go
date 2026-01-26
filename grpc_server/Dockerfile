@@ -3,7 +3,7 @@ FROM golang:1.24-alpine AS builder
 
 WORKDIR /app
 
-COPY go.mod go.sum .env ./
+COPY go.mod go.sum ./
 COPY proto/ proto/
 RUN go mod download
 
@@ -36,7 +36,6 @@ FROM alpine:latest
 WORKDIR /app
 
 COPY --from=production /app/grpcserver .
-COPY --from=production /app/.env ./
 COPY --from=production /app/certs ./certs
 
 EXPOSE 50051

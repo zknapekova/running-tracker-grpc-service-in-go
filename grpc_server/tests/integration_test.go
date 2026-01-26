@@ -3,6 +3,7 @@ package tests
 import (
 	"context"
 	"grpcserver/client"
+	"grpcserver/internals/utils"
 	"log"
 	"os"
 	"testing"
@@ -11,6 +12,7 @@ import (
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"go.uber.org/zap"
 
 	mongodb "grpcserver/mongo_db"
 	running_trackerpb "grpcserver/proto/generated_files"
@@ -38,6 +40,8 @@ func TestMain(m *testing.M) {
 		CertPath:   certPath,
 		OAuthToken: token,
 	}
+
+	utils.Logger = zap.NewNop()
 
 	new_client, err = client.CreateServiceClient(config)
 	if err != nil {
@@ -133,8 +137,8 @@ func TestAddTrainers_ok(t *testing.T) {
 	}
 }
 
-func TestGetTrainers_sort(t *testing.T) {
-	// The test validates that GetTrainers requests returns inserted data and verifies that sorting is perfomed correctly
+func TestGetTrainers_SortDesc(t *testing.T) {
+	// The test validates that GetTrainers requests returns inserted data and verifies that sorting in descending is perfomed correctly
 
 	// db set up
 	test_trainers1 := insertTestTrainer(t, mongo_client, "test_brand1", "model1")
@@ -187,6 +191,64 @@ func TestGetTrainers_sort(t *testing.T) {
 		t.Fatalf("Expected first trainer model to be %s, got '%s'", test_trainers2.Model, res_get.Trainers[0].Model)
 	}
 	if res_get.Trainers[1].Model != test_trainers1.Model {
+		t.Fatalf("Expected second trainer model to be %s, got '%s'", test_trainers1.Model, res_get.Trainers[1].Model)
+	}
+}
+
+func TestGetTrainers_SortAsc(t *testing.T) {
+	// The test validates that GetTrainers requests returns inserted data and verifies that sorting in ascending order is perfomed correctly
+
+	// db set up
+	test_trainers1 := insertTestTrainer(t, mongo_client, "test_brand1", "model1")
+	test_trainers2 := insertTestTrainer(t, mongo_client, "test_brand1", "model2")
+
+	t.Cleanup(func() {
+		filter := bson.M{"_id": test_trainers1.ID}
+		_, err_delete := db.Collection("trainers").DeleteOne(context.Background(), filter)
+		if err_delete != nil {
+			t.Logf("CLEAN_UP: Failed to delete trainer1: %v", err_delete)
+		}
+
+		filter = bson.M{"_id": test_trainers2.ID}
+		_, err_delete = db.Collection("trainers").DeleteOne(context.Background(), filter)
+		if err_delete != nil {
+			t.Logf("CLEAN_UP: Failed to delete trainer2: %v", err_delete)
+		}
+	})
+
+	get_trainers_request := running_trackerpb.GetTrainersRequest{
+		Trainers: &running_trackerpb.Trainer{
+			Brand: "test_brand1",
+		},
+		SortBy: []*running_trackerpb.SortField{
+			{
+				Field: "model",
+				Order: running_trackerpb.Order_ASC,
+			},
+		},
+	}
+
+	// response check
+	res_get, err := new_client.Trainers.GetTrainers(ctx, &get_trainers_request)
+	if err != nil {
+		t.Fatal("Could not get ", err)
+	}
+	log.Println("GET response:", res_get)
+
+	if len(res_get.Trainers) == 0 {
+		t.Fatalf("No trainers returned from GetTrainers")
+	}
+
+	expectedCount := 2
+	if len(res_get.Trainers) != expectedCount {
+		t.Fatalf("Expected %d trainers, got %d", expectedCount, len(res_get.Trainers))
+	}
+
+	// check sorting
+	if res_get.Trainers[0].Model != test_trainers1.Model {
+		t.Fatalf("Expected first trainer model to be %s, got '%s'", test_trainers1.Model, res_get.Trainers[0].Model)
+	}
+	if res_get.Trainers[1].Model != test_trainers2.Model {
 		t.Fatalf("Expected second trainer model to be %s, got '%s'", test_trainers2.Model, res_get.Trainers[1].Model)
 	}
 }
@@ -357,5 +419,22 @@ func TestAddActivities_ok(t *testing.T) {
 
 	if len(res_add.Ids) != len(add_activities_request.Activities) {
 		t.Fatalf("Number of returned IDs does not match number of added activities")
+	}
+}
+
+func TestHealthChech_ServingStatus(t *testing.T) {
+	// The test sends healthcheck request and verifies that SERVING status is returned
+
+	request := running_trackerpb.HealthCheckRequest{}
+
+	res, err := new_client.HealthCheck.HealthCheck(ctx, &request)
+	if err != nil {
+		t.Fatal("HealthCheck failed ", err)
+	}
+
+	expected_status := running_trackerpb.HealthCheckResponse_SERVING
+	status := res.Status
+	if status != expected_status {
+		t.Fatalf("expected status %v, got %v", expected_status, status)
 	}
 }
