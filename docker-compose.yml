@@ -38,7 +38,7 @@ services:
     command: ["air", "-c", "air.toml"]
 
   grpcserver:
-    image: zknap/running_tracker_app:latest
+    image: zknap/running_tracker:latest
     build:
       context: ./grpc_server
       dockerfile: Dockerfile

@@ -1,0 +1,61 @@
+name: Test and Release Pipeline
+on:
+  push:
+    branches: [ "**" ]
+  workflow_dispatch:
+    inputs:
+      action:
+        description: 'Action to perform'
+        required: true
+        default: 'test'
+        type: choice
+        options:
+          - test
+          - release
+
+env:
+  GO_VERSION: '1.24.1'
+
+jobs:
+  test:
+    name: Run tests
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v6
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        id: go_setup
+        with:
+          go-version: ${{ env.GO_VERSION }}
+          cache-dependency-path: ./grpc_server/go.sum
+      - name: Check versions
+        run: |
+          go version
+          docker version
+      - name: Build server image
+        run: |
+          docker compose build grpcserver
+          docker images
+
+      - name: Start mongodb and grpc server
+        run: |
+          docker compose up -d --remove-orphans mongodb grpcserver
+          docker ps
+
+      - name: Run unit tests
+        working-directory: ./grpc_server
+        run: go test -v ./...
+
+      - name: Wait for services to be healthy
+        run: |
+          echo "Waiting for grpcserver to be ready..."
+          timeout 60 bash -c 'until docker compose ps grpcserver | grep -q "healthy\|running"; do sleep 2; done'
+
+      - name: Run E2E tests
+        working-directory: ./grpc_server
+        run: go test -v ./tests/...
+
+      - name: Tear down services
+        run: docker compose down -v
+
